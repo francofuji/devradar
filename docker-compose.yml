@@ -1,0 +1,147 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-dev_intelligence}
+      POSTGRES_USER: ${POSTGRES_USER:-devint}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme_in_production}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-devint} -d ${POSTGRES_DB:-dev_intelligence}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ollama:
+    image: ollama/ollama
+    volumes:
+      - ollama_models:/root/.ollama
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    environment:
+      PYTHONPATH: /app
+      APP_ENV: ${APP_ENV:-development}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://devint:changeme_in_production@postgres:5432/dev_intelligence}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
+      POSTGRES_DB: ${POSTGRES_DB:-dev_intelligence}
+      POSTGRES_USER: ${POSTGRES_USER:-devint}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme_in_production}
+      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    volumes:
+      - ./output:/app/output
+      - ./logs:/app/logs
+      - ./taxonomy:/app/taxonomy
+      - ./config.toml:/app/config.toml
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    environment:
+      VITE_API_URL: http://localhost:${API_PORT:-8000}
+      VITE_API_TOKEN: ${VITE_API_TOKEN:-}
+    ports:
+      - "${WEB_PORT:-5173}:5173"
+    depends_on:
+      - api
+
+  worker:
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    environment:
+      PYTHONPATH: /app
+      APP_ENV: ${APP_ENV:-development}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://devint:changeme_in_production@postgres:5432/dev_intelligence}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
+      POSTGRES_DB: ${POSTGRES_DB:-dev_intelligence}
+      POSTGRES_USER: ${POSTGRES_USER:-devint}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme_in_production}
+      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./output:/app/output
+      - ./logs:/app/logs
+      - ./taxonomy:/app/taxonomy
+      - ./config.toml:/app/config.toml
+
+  fine_tuning:
+    build:
+      context: .
+      dockerfile: fine_tuning/Dockerfile
+    profiles:
+      - fine_tuning
+    environment:
+      PYTHONPATH: /app
+      DATABASE_URL: ${DATABASE_URL:-postgresql://devint:changeme_in_production@postgres:5432/dev_intelligence}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
+      POSTGRES_DB: ${POSTGRES_DB:-dev_intelligence}
+      POSTGRES_USER: ${POSTGRES_USER:-devint}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme_in_production}
+      POSTGRES_HOST: ${POSTGRES_HOST:-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      HF_TOKEN: ${HF_TOKEN:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    volumes:
+      - .:/app
+      - ./fine_tuning/data:/app/fine_tuning/data
+      - ./fine_tuning/models:/app/fine_tuning/models
+      - ./config.toml:/app/config.toml
+    # Uso: docker compose run fine_tuning python fine_tuning/train.py --task narrative --epochs 3
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
+  redis_data:
+  ollama_models:

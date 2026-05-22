@@ -1,0 +1,2539 @@
+{
+  "_meta": {
+    "version": "0.1.0",
+    "description": "Mapeo package → categoría + señales para el sistema heurístico de dev-intelligence",
+    "categories": [
+      "ai_llm",
+      "ai_framework",
+      "ai_observability",
+      "browser_automation",
+      "testing",
+      "payments",
+      "auth",
+      "database",
+      "queues",
+      "caching",
+      "monitoring",
+      "logging",
+      "analytics",
+      "email",
+      "validation",
+      "infra",
+      "mcp"
+    ],
+    "archetype_signal_values": [
+      "solo_agent_builder",
+      "automation_builder",
+      "mcp_platform_builder",
+      "technical_founder",
+      "ai_agency_builder",
+      "growth_engineer"
+    ],
+    "budget_signal_values": [
+      null,
+      "possible",
+      "confirmed"
+    ],
+    "last_updated": "2026-05-21"
+  },
+  "packages": {
+    "openai": {
+      "category": "ai_llm",
+      "subcategory": "provider",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder",
+        "ai_agency_builder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 20,
+      "scaling_signal": false,
+      "pain_category": "api_cost",
+      "runtime_only": true,
+      "note": "Presence implies active LLM spend. Rate limit pain is common."
+    },
+    "@openai/openai": {
+      "category": "ai_llm",
+      "subcategory": "provider",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 20,
+      "scaling_signal": false,
+      "pain_category": "api_cost",
+      "runtime_only": true,
+      "note": "New official OpenAI JS SDK"
+    },
+    "anthropic": {
+      "category": "ai_llm",
+      "subcategory": "provider",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder",
+        "ai_agency_builder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 20,
+      "scaling_signal": false,
+      "pain_category": "api_cost",
+      "runtime_only": true,
+      "note": "Python SDK"
+    },
+    "@anthropic-ai/sdk": {
+      "category": "ai_llm",
+      "subcategory": "provider",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 20,
+      "scaling_signal": false,
+      "pain_category": "api_cost",
+      "runtime_only": true,
+      "note": "TypeScript SDK"
+    },
+    "cohere": {
+      "category": "ai_llm",
+      "subcategory": "provider",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 3,
+      "intent_weight": 15,
+      "scaling_signal": false,
+      "pain_category": "api_cost",
+      "runtime_only": true,
+      "note": ""
+    },
+    "mistralai": {
+      "category": "ai_llm",
+      "subcategory": "provider",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 3,
+      "intent_weight": 15,
+      "scaling_signal": false,
+      "pain_category": "api_cost",
+      "runtime_only": true,
+      "note": ""
+    },
+    "groq": {
+      "category": "ai_llm",
+      "subcategory": "provider",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 3,
+      "intent_weight": 12,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Speed-optimized inference, often cost-driven migration"
+    },
+    "together": {
+      "category": "ai_llm",
+      "subcategory": "provider",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 2,
+      "intent_weight": 10,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "replicate": {
+      "category": "ai_llm",
+      "subcategory": "provider",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 2,
+      "intent_weight": 10,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "huggingface_hub": {
+      "category": "ai_llm",
+      "subcategory": "provider",
+      "budget_signal": null,
+      "archetype_signals": [
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 3,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": ""
+    },
+    "google-generativeai": {
+      "category": "ai_llm",
+      "subcategory": "provider",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 3,
+      "intent_weight": 12,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Gemini API Python"
+    },
+    "@google/generative-ai": {
+      "category": "ai_llm",
+      "subcategory": "provider",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 3,
+      "intent_weight": 12,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Gemini API JS"
+    },
+    "litellm": {
+      "category": "ai_llm",
+      "subcategory": "router",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "ai_agency_builder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 18,
+      "scaling_signal": false,
+      "pain_category": "api_cost",
+      "runtime_only": true,
+      "note": "Using LiteLLM = actively managing multi-provider cost/reliability"
+    },
+    "ollama": {
+      "category": "ai_llm",
+      "subcategory": "local",
+      "budget_signal": null,
+      "archetype_signals": [
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 2,
+      "intent_weight": 6,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Local inference, privacy or cost concern"
+    },
+    "ai": {
+      "category": "ai_llm",
+      "subcategory": "sdk",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder",
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 15,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Vercel AI SDK — implies production web product"
+    },
+    "langchain": {
+      "category": "ai_framework",
+      "subcategory": "orchestration",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "ai_agency_builder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 18,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Python. Core agent framework adoption signal."
+    },
+    "@langchain/core": {
+      "category": "ai_framework",
+      "subcategory": "orchestration",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 18,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "TypeScript. More mature than base langchain import."
+    },
+    "@langchain/openai": {
+      "category": "ai_framework",
+      "subcategory": "orchestration",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 3,
+      "intent_weight": 15,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "@langchain/anthropic": {
+      "category": "ai_framework",
+      "subcategory": "orchestration",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 3,
+      "intent_weight": 15,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "langchain-community": {
+      "category": "ai_framework",
+      "subcategory": "orchestration",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "ai_agency_builder"
+      ],
+      "maturity_modifier": 4,
+      "intent_weight": 14,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "crewai": {
+      "category": "ai_framework",
+      "subcategory": "multi_agent",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "ai_agency_builder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 20,
+      "scaling_signal": false,
+      "pain_category": "scaling",
+      "runtime_only": true,
+      "note": "Multi-agent coordination. High signal for agent builders hitting complexity ceiling."
+    },
+    "autogen": {
+      "category": "ai_framework",
+      "subcategory": "multi_agent",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "ai_agency_builder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 18,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Microsoft AutoGen"
+    },
+    "autogen-agentchat": {
+      "category": "ai_framework",
+      "subcategory": "multi_agent",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 18,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "AutoGen v0.4+ new package name"
+    },
+    "semantic-kernel": {
+      "category": "ai_framework",
+      "subcategory": "orchestration",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder",
+        "growth_engineer"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 14,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Enterprise-leaning, Microsoft ecosystem"
+    },
+    "llama-index": {
+      "category": "ai_framework",
+      "subcategory": "rag",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 16,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "RAG + agent framework"
+    },
+    "llama_index": {
+      "category": "ai_framework",
+      "subcategory": "rag",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 16,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Older import name for llama-index"
+    },
+    "haystack-ai": {
+      "category": "ai_framework",
+      "subcategory": "rag",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 14,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "dspy-ai": {
+      "category": "ai_framework",
+      "subcategory": "optimization",
+      "budget_signal": null,
+      "archetype_signals": [
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 4,
+      "intent_weight": 10,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Advanced prompting optimization, high-sophistication signal"
+    },
+    "pydantic-ai": {
+      "category": "ai_framework",
+      "subcategory": "orchestration",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 16,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Type-safe agent framework, high maturity signal"
+    },
+    "instructor": {
+      "category": "ai_framework",
+      "subcategory": "structured_output",
+      "budget_signal": null,
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 12,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Structured LLM output — production discipline signal"
+    },
+    "langfuse": {
+      "category": "ai_observability",
+      "subcategory": "tracing",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 14,
+      "scaling_signal": false,
+      "pain_category": "observability",
+      "runtime_only": false,
+      "note": "LLM observability = production AI system"
+    },
+    "helicone": {
+      "category": "ai_observability",
+      "subcategory": "tracing",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 7,
+      "intent_weight": 13,
+      "scaling_signal": false,
+      "pain_category": "api_cost",
+      "runtime_only": false,
+      "note": "Helicone = monitoring LLM costs actively"
+    },
+    "opentelemetry-sdk": {
+      "category": "monitoring",
+      "subcategory": "tracing",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 10,
+      "intent_weight": 15,
+      "scaling_signal": true,
+      "pain_category": "observability",
+      "runtime_only": true,
+      "note": "OpenTelemetry tracing — serious observability investment."
+    },
+    "@opentelemetry/api": {
+      "category": "monitoring",
+      "subcategory": "tracing",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 10,
+      "scaling_signal": true,
+      "pain_category": "observability",
+      "runtime_only": false,
+      "note": ""
+    },
+    "playwright": {
+      "category": "browser_automation",
+      "subcategory": "automation",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 18,
+      "scaling_signal": false,
+      "pain_category": "reliability",
+      "runtime_only": true,
+      "note": "CRITICAL: only count if in dependencies, NOT devDependencies. In devDeps = testing only."
+    },
+    "@playwright/test": {
+      "category": "testing",
+      "subcategory": "e2e",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 8,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "E2E testing framework — maturity signal only"
+    },
+    "puppeteer": {
+      "category": "browser_automation",
+      "subcategory": "automation",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder"
+      ],
+      "maturity_modifier": 3,
+      "intent_weight": 15,
+      "scaling_signal": false,
+      "pain_category": "reliability",
+      "runtime_only": true,
+      "note": "Older than playwright, legacy automation signal"
+    },
+    "puppeteer-core": {
+      "category": "browser_automation",
+      "subcategory": "automation",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder"
+      ],
+      "maturity_modifier": 3,
+      "intent_weight": 15,
+      "scaling_signal": false,
+      "pain_category": "reliability",
+      "runtime_only": true,
+      "note": ""
+    },
+    "selenium-webdriver": {
+      "category": "browser_automation",
+      "subcategory": "automation",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder",
+        "growth_engineer"
+      ],
+      "maturity_modifier": 0,
+      "intent_weight": 12,
+      "scaling_signal": false,
+      "pain_category": "reliability",
+      "runtime_only": true,
+      "note": "Legacy stack — often looking to migrate"
+    },
+    "selenium": {
+      "category": "browser_automation",
+      "subcategory": "automation",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder"
+      ],
+      "maturity_modifier": 0,
+      "intent_weight": 12,
+      "scaling_signal": false,
+      "pain_category": "reliability",
+      "runtime_only": true,
+      "note": "Python selenium — legacy signal"
+    },
+    "scrapy": {
+      "category": "browser_automation",
+      "subcategory": "scraping",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder",
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 3,
+      "intent_weight": 10,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "stagehand": {
+      "category": "browser_automation",
+      "subcategory": "ai_automation",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "automation_builder",
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 20,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "AI-powered browser automation — hot ecosystem signal"
+    },
+    "browser-use": {
+      "category": "browser_automation",
+      "subcategory": "ai_automation",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "automation_builder",
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 20,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "AI browser agent framework"
+    },
+    "agentql": {
+      "category": "browser_automation",
+      "subcategory": "ai_automation",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "automation_builder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 18,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "jest": {
+      "category": "testing",
+      "subcategory": "unit",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 10,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Testing maturity signal"
+    },
+    "vitest": {
+      "category": "testing",
+      "subcategory": "unit",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 10,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": ""
+    },
+    "pytest": {
+      "category": "testing",
+      "subcategory": "unit",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 10,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": ""
+    },
+    "pytest-asyncio": {
+      "category": "testing",
+      "subcategory": "unit",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 5,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": ""
+    },
+    "mocha": {
+      "category": "testing",
+      "subcategory": "unit",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 8,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": ""
+    },
+    "hypothesis": {
+      "category": "testing",
+      "subcategory": "property",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 8,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Property-based testing — high engineering discipline"
+    },
+    "msw": {
+      "category": "testing",
+      "subcategory": "mocking",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 6,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Mock Service Worker — API-aware testing discipline"
+    },
+    "faker": {
+      "category": "testing",
+      "subcategory": "fixtures",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 4,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": ""
+    },
+    "testcontainers": {
+      "category": "testing",
+      "subcategory": "integration",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 8,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Integration testing with real services — high maturity"
+    },
+    "stripe": {
+      "category": "payments",
+      "subcategory": "processing",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 12,
+      "intent_weight": 25,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Has paying customers. Strong buying intent signal."
+    },
+    "@stripe/stripe-js": {
+      "category": "payments",
+      "subcategory": "processing",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 12,
+      "intent_weight": 25,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Frontend Stripe — implies full payment flow"
+    },
+    "lemon-squeezy": {
+      "category": "payments",
+      "subcategory": "processing",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder",
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 10,
+      "intent_weight": 22,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Indie-friendly Stripe alternative"
+    },
+    "next-auth": {
+      "category": "auth",
+      "subcategory": "session",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "@auth/core": {
+      "category": "auth",
+      "subcategory": "session",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Auth.js v5"
+    },
+    "passport": {
+      "category": "auth",
+      "subcategory": "session",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 6,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "jsonwebtoken": {
+      "category": "auth",
+      "subcategory": "token",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 4,
+      "intent_weight": 4,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "jose": {
+      "category": "auth",
+      "subcategory": "token",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 5,
+      "intent_weight": 4,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "clerk": {
+      "category": "auth",
+      "subcategory": "managed",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 10,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Managed auth = paying for infra, production mindset"
+    },
+    "@clerk/nextjs": {
+      "category": "auth",
+      "subcategory": "managed",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 10,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "better-auth": {
+      "category": "auth",
+      "subcategory": "session",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 7,
+      "intent_weight": 7,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Modern auth.js alternative"
+    },
+    "@supabase/supabase-js": {
+      "category": "database",
+      "subcategory": "baas",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 10,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Indie-stack signal. Auth + DB + Storage in one."
+    },
+    "prisma": {
+      "category": "database",
+      "subcategory": "orm",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 6,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": ""
+    },
+    "drizzle-orm": {
+      "category": "database",
+      "subcategory": "orm",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 6,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Type-safe, modern ORM preference"
+    },
+    "sqlalchemy": {
+      "category": "database",
+      "subcategory": "orm",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 6,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": ""
+    },
+    "pg": {
+      "category": "database",
+      "subcategory": "driver",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 5,
+      "intent_weight": 4,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "mongoose": {
+      "category": "database",
+      "subcategory": "odm",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 4,
+      "intent_weight": 4,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "firebase": {
+      "category": "database",
+      "subcategory": "baas",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "bullmq": {
+      "category": "queues",
+      "subcategory": "job_queue",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder",
+        "growth_engineer"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 12,
+      "scaling_signal": true,
+      "pain_category": "scaling",
+      "runtime_only": true,
+      "note": "STRONG scaling signal. Adding bullmq = hitting async processing limits."
+    },
+    "bull": {
+      "category": "queues",
+      "subcategory": "job_queue",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 10,
+      "scaling_signal": true,
+      "pain_category": "scaling",
+      "runtime_only": true,
+      "note": "Legacy version of bullmq"
+    },
+    "celery": {
+      "category": "queues",
+      "subcategory": "job_queue",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder",
+        "growth_engineer"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 12,
+      "scaling_signal": true,
+      "pain_category": "scaling",
+      "runtime_only": true,
+      "note": "Python distributed task queue"
+    },
+    "rq": {
+      "category": "queues",
+      "subcategory": "job_queue",
+      "budget_signal": null,
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 10,
+      "scaling_signal": true,
+      "pain_category": "scaling",
+      "runtime_only": true,
+      "note": "Redis Queue — simpler than Celery"
+    },
+    "inngest": {
+      "category": "queues",
+      "subcategory": "serverless_queue",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 12,
+      "scaling_signal": true,
+      "pain_category": "scaling",
+      "runtime_only": true,
+      "note": ""
+    },
+    "redis": {
+      "category": "caching",
+      "subcategory": "cache",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 8,
+      "intent_weight": 12,
+      "scaling_signal": true,
+      "pain_category": "scaling",
+      "runtime_only": true,
+      "note": "STRONG scaling signal. Adding Redis = caching or session management need."
+    },
+    "ioredis": {
+      "category": "caching",
+      "subcategory": "cache",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 8,
+      "intent_weight": 12,
+      "scaling_signal": true,
+      "pain_category": "scaling",
+      "runtime_only": true,
+      "note": "TypeScript Redis client"
+    },
+    "@sentry/node": {
+      "category": "monitoring",
+      "subcategory": "error_tracking",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": "observability",
+      "runtime_only": false,
+      "note": "Has production users if using Sentry"
+    },
+    "@sentry/nextjs": {
+      "category": "monitoring",
+      "subcategory": "error_tracking",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": "observability",
+      "runtime_only": false,
+      "note": ""
+    },
+    "sentry-sdk": {
+      "category": "monitoring",
+      "subcategory": "error_tracking",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": "observability",
+      "runtime_only": false,
+      "note": "Python Sentry SDK"
+    },
+    "dd-trace": {
+      "category": "monitoring",
+      "subcategory": "apm",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 10,
+      "intent_weight": 18,
+      "scaling_signal": true,
+      "pain_category": "observability",
+      "runtime_only": true,
+      "note": "Datadog APM tracer for Node.js."
+    },
+    "newrelic": {
+      "category": "monitoring",
+      "subcategory": "apm",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder",
+        "growth_engineer"
+      ],
+      "maturity_modifier": 10,
+      "intent_weight": 8,
+      "scaling_signal": true,
+      "pain_category": "observability",
+      "runtime_only": false,
+      "note": ""
+    },
+    "pino": {
+      "category": "logging",
+      "subcategory": "structured",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 6,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Structured logging = production discipline"
+    },
+    "winston": {
+      "category": "logging",
+      "subcategory": "structured",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 5,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": ""
+    },
+    "loguru": {
+      "category": "logging",
+      "subcategory": "structured",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 6,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Python logging"
+    },
+    "structlog": {
+      "category": "logging",
+      "subcategory": "structured",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 7,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "High-discipline Python logging"
+    },
+    "posthog-js": {
+      "category": "analytics",
+      "subcategory": "product",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 6,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Tracking user behavior = has users"
+    },
+    "posthog-node": {
+      "category": "analytics",
+      "subcategory": "product",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 6,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": ""
+    },
+    "mixpanel": {
+      "category": "analytics",
+      "subcategory": "product",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 6,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": ""
+    },
+    "amplitude": {
+      "category": "analytics",
+      "subcategory": "product",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 7,
+      "intent_weight": 7,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Amplitude = growth-focused product team"
+    },
+    "resend": {
+      "category": "email",
+      "subcategory": "transactional",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Modern transactional email = product has users"
+    },
+    "@sendgrid/mail": {
+      "category": "email",
+      "subcategory": "transactional",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "zod": {
+      "category": "validation",
+      "subcategory": "schema",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 8,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Type-safe validation = engineering discipline"
+    },
+    "pydantic": {
+      "category": "validation",
+      "subcategory": "schema",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 8,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Core Python validation library"
+    },
+    "yup": {
+      "category": "validation",
+      "subcategory": "schema",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 5,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": ""
+    },
+    "boto3": {
+      "category": "infra",
+      "subcategory": "cloud_sdk",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 15,
+      "scaling_signal": true,
+      "pain_category": "infra_complexity",
+      "runtime_only": true,
+      "note": "AWS SDK for Python."
+    },
+    "@aws-sdk/client-s3": {
+      "category": "infra",
+      "subcategory": "cloud",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "serverless": {
+      "category": "infra",
+      "subcategory": "deployment",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder",
+        "growth_engineer"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 8,
+      "scaling_signal": true,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": ""
+    },
+    "docker": {
+      "category": "infra",
+      "subcategory": "container",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 8,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Check for Dockerfile presence, not this package"
+    },
+    "@modelcontextprotocol/sdk": {
+      "category": "mcp",
+      "subcategory": "core",
+      "budget_signal": null,
+      "archetype_signals": [
+        "mcp_platform_builder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 22,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "TIER 1 ecosystem signal. Building MCP tooling."
+    },
+    "fastmcp": {
+      "category": "mcp",
+      "subcategory": "framework",
+      "budget_signal": null,
+      "archetype_signals": [
+        "mcp_platform_builder"
+      ],
+      "maturity_modifier": 7,
+      "intent_weight": 22,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Python MCP framework"
+    },
+    "mcp": {
+      "category": "mcp",
+      "subcategory": "core",
+      "budget_signal": null,
+      "archetype_signals": [
+        "mcp_platform_builder"
+      ],
+      "maturity_modifier": 7,
+      "intent_weight": 20,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Generic MCP package"
+    },
+    "chromadb": {
+      "category": "database",
+      "subcategory": "vector",
+      "budget_signal": null,
+      "archetype_signals": [
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 12,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Vector DB for RAG"
+    },
+    "pinecone-client": {
+      "category": "database",
+      "subcategory": "vector",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 14,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Managed vector DB = paying for AI infra"
+    },
+    "weaviate-client": {
+      "category": "database",
+      "subcategory": "vector",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 12,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "qdrant-client": {
+      "category": "database",
+      "subcategory": "vector",
+      "budget_signal": null,
+      "archetype_signals": [
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 10,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "tiktoken": {
+      "category": "ai_framework",
+      "subcategory": "tokenization",
+      "budget_signal": null,
+      "archetype_signals": [
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 3,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": "api_cost",
+      "runtime_only": true,
+      "note": "Counting tokens manually = cost-aware developer"
+    },
+    "transformers": {
+      "category": "ai_llm",
+      "subcategory": "local",
+      "budget_signal": null,
+      "archetype_signals": [
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "HuggingFace Transformers"
+    },
+    "sentence-transformers": {
+      "category": "ai_llm",
+      "subcategory": "embeddings",
+      "budget_signal": null,
+      "archetype_signals": [
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 4,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "httpx": {
+      "category": "testing",
+      "subcategory": "http_client",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 4,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Async HTTP client"
+    },
+    "aiohttp": {
+      "category": "testing",
+      "subcategory": "http_client",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 4,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": ""
+    },
+    "alembic": {
+      "category": "database",
+      "subcategory": "migrations",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 8,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "DB migrations = production schema discipline"
+    },
+    "dramatiq": {
+      "category": "queues",
+      "subcategory": "job_queue",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 10,
+      "scaling_signal": true,
+      "pain_category": "scaling",
+      "runtime_only": true,
+      "note": ""
+    },
+    "arq": {
+      "category": "queues",
+      "subcategory": "job_queue",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 10,
+      "scaling_signal": true,
+      "pain_category": "scaling",
+      "runtime_only": true,
+      "note": "Async Python job queue"
+    },
+    "locust": {
+      "category": "testing",
+      "subcategory": "load",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 0,
+      "scaling_signal": true,
+      "pain_category": "scaling",
+      "runtime_only": false,
+      "note": "Load testing = actively validating scale"
+    },
+    "neon": {
+      "category": "database",
+      "subcategory": "managed",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder",
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 6,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Serverless Postgres"
+    },
+    "convex": {
+      "category": "database",
+      "subcategory": "baas",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": ""
+    },
+    "supertest": {
+      "category": "testing",
+      "subcategory": "integration",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 7,
+      "intent_weight": 0,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": ""
+    },
+    "playwright-extra": {
+      "category": "browser_automation",
+      "subcategory": "stealth",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder",
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 3,
+      "intent_weight": 18,
+      "scaling_signal": false,
+      "pain_category": "detection_evasion",
+      "runtime_only": true,
+      "note": "Plugin layer over Playwright; indicates anti-detection needs."
+    },
+    "puppeteer-extra-plugin-stealth": {
+      "category": "browser_automation",
+      "subcategory": "stealth",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder"
+      ],
+      "maturity_modifier": 2,
+      "intent_weight": 15,
+      "scaling_signal": false,
+      "pain_category": "detection_evasion",
+      "runtime_only": true,
+      "note": "Stealth plugin for puppeteer-extra."
+    },
+    "rebrowser-playwright": {
+      "category": "browser_automation",
+      "subcategory": "stealth",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder"
+      ],
+      "maturity_modifier": 2,
+      "intent_weight": 16,
+      "scaling_signal": false,
+      "pain_category": "detection_evasion",
+      "runtime_only": true,
+      "note": "Patched Playwright fork for bot detection bypass."
+    },
+    "helium": {
+      "category": "browser_automation",
+      "subcategory": "high_level",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder"
+      ],
+      "maturity_modifier": 1,
+      "intent_weight": 12,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "High-level Selenium wrapper."
+    },
+    "pyautogui": {
+      "category": "browser_automation",
+      "subcategory": "desktop",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder"
+      ],
+      "maturity_modifier": 0,
+      "intent_weight": 10,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Desktop GUI automation; often used in RPA workflows."
+    },
+    "pywinauto": {
+      "category": "browser_automation",
+      "subcategory": "desktop",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder"
+      ],
+      "maturity_modifier": 0,
+      "intent_weight": 10,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Windows GUI automation library."
+    },
+    "robotframework": {
+      "category": "testing",
+      "subcategory": "e2e",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Keyword-driven acceptance testing; enterprise signal."
+    },
+    "cypress": {
+      "category": "testing",
+      "subcategory": "e2e",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "E2E browser testing; +8 maturity."
+    },
+    "chai": {
+      "category": "testing",
+      "subcategory": "assertion",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 5,
+      "intent_weight": 5,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Assertion library; used alongside mocha."
+    },
+    "factory-boy": {
+      "category": "testing",
+      "subcategory": "fixtures",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 3,
+      "intent_weight": 4,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "Test fixture factory for Python."
+    },
+    "nock": {
+      "category": "testing",
+      "subcategory": "mocking",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 3,
+      "intent_weight": 4,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": false,
+      "note": "HTTP mocking library for Node.js tests."
+    },
+    "k6": {
+      "category": "testing",
+      "subcategory": "load",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 10,
+      "scaling_signal": true,
+      "pain_category": "performance",
+      "runtime_only": false,
+      "note": "Load testing; scaling signal when present."
+    },
+    "artillery": {
+      "category": "testing",
+      "subcategory": "load",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 10,
+      "scaling_signal": true,
+      "pain_category": "performance",
+      "runtime_only": false,
+      "note": "Load/perf testing for Node.js."
+    },
+    "autocannon": {
+      "category": "testing",
+      "subcategory": "load",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 4,
+      "intent_weight": 8,
+      "scaling_signal": true,
+      "pain_category": "performance",
+      "runtime_only": false,
+      "note": "Fast HTTP benchmarking tool."
+    },
+    "agent-e": {
+      "category": "ai_framework",
+      "subcategory": "agent_ui",
+      "budget_signal": null,
+      "archetype_signals": [
+        "solo_agent_builder",
+        "automation_builder"
+      ],
+      "maturity_modifier": 2,
+      "intent_weight": 20,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Browser agent framework."
+    },
+    "skyvern": {
+      "category": "browser_automation",
+      "subcategory": "ai_agent",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "automation_builder",
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 3,
+      "intent_weight": 22,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "LLM-powered browser automation for workflows."
+    },
+    "multion": {
+      "category": "browser_automation",
+      "subcategory": "ai_agent",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "automation_builder",
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 2,
+      "intent_weight": 22,
+      "scaling_signal": false,
+      "pain_category": "api_cost",
+      "runtime_only": true,
+      "note": "MultiOn SDK — paid browser agent API."
+    },
+    "lanarky": {
+      "category": "ai_framework",
+      "subcategory": "serving",
+      "budget_signal": null,
+      "archetype_signals": [
+        "solo_agent_builder",
+        "ai_agency_builder"
+      ],
+      "maturity_modifier": 2,
+      "intent_weight": 15,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "FastAPI-based LangChain serving layer."
+    },
+    "dendrite": {
+      "category": "browser_automation",
+      "subcategory": "ai_agent",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder"
+      ],
+      "maturity_modifier": 2,
+      "intent_weight": 18,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Browser automation framework for AI agents."
+    },
+    "surf": {
+      "category": "browser_automation",
+      "subcategory": "scraping",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder"
+      ],
+      "maturity_modifier": 1,
+      "intent_weight": 10,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Lightweight web scraping library."
+    },
+    "mechanize": {
+      "category": "browser_automation",
+      "subcategory": "scraping",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder"
+      ],
+      "maturity_modifier": 0,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Stateful programmatic web browsing."
+    },
+    "beautifulsoup4": {
+      "category": "browser_automation",
+      "subcategory": "scraping",
+      "budget_signal": null,
+      "archetype_signals": [
+        "automation_builder"
+      ],
+      "maturity_modifier": 2,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "HTML parsing; common in scraping stacks."
+    },
+    "requests": {
+      "category": "browser_automation",
+      "subcategory": "http",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 0,
+      "intent_weight": 3,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Generic HTTP client; context-dependent signal."
+    },
+    "paddle": {
+      "category": "payments",
+      "subcategory": "merchant_of_record",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 12,
+      "intent_weight": 28,
+      "scaling_signal": false,
+      "pain_category": "payment_integration",
+      "runtime_only": true,
+      "note": "Paddle MoR — confirmed monetisation."
+    },
+    "supabase": {
+      "category": "database",
+      "subcategory": "baas",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder",
+        "solo_agent_builder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 12,
+      "scaling_signal": true,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Hosted Postgres + auth + storage; scaling signal at volume."
+    },
+    "@firebase/auth": {
+      "category": "auth",
+      "subcategory": "saas_auth",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 15,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Firebase Auth — real auth layer (not just JWT)."
+    },
+    "auth0": {
+      "category": "auth",
+      "subcategory": "saas_auth",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 10,
+      "intent_weight": 18,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Auth0 SDK — paid at scale; serious auth signal."
+    },
+    "keycloak-js": {
+      "category": "auth",
+      "subcategory": "self_hosted_auth",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 15,
+      "scaling_signal": true,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Keycloak self-hosted IAM; enterprise signal."
+    },
+    "peewee": {
+      "category": "database",
+      "subcategory": "orm",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 3,
+      "intent_weight": 5,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Lightweight ORM for Python."
+    },
+    "tortoise-orm": {
+      "category": "database",
+      "subcategory": "async_orm",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 8,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Async ORM for Python; signals production API."
+    },
+    "pymongo": {
+      "category": "database",
+      "subcategory": "nosql",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 4,
+      "intent_weight": 8,
+      "scaling_signal": true,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "MongoDB Python driver."
+    },
+    "motor": {
+      "category": "database",
+      "subcategory": "nosql",
+      "budget_signal": null,
+      "archetype_signals": [],
+      "maturity_modifier": 4,
+      "intent_weight": 8,
+      "scaling_signal": true,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Async MongoDB driver."
+    },
+    "fauna": {
+      "category": "database",
+      "subcategory": "serverless_db",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 4,
+      "intent_weight": 10,
+      "scaling_signal": true,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "FaunaDB — serverless, usage-based billing."
+    },
+    "@planetscale/database": {
+      "category": "database",
+      "subcategory": "serverless_db",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 12,
+      "scaling_signal": true,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "PlanetScale serverless MySQL."
+    },
+    "@libsql/client": {
+      "category": "database",
+      "subcategory": "serverless_db",
+      "budget_signal": null,
+      "archetype_signals": [
+        "solo_agent_builder",
+        "technical_founder"
+      ],
+      "maturity_modifier": 4,
+      "intent_weight": 10,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Turso/libSQL client; edge-friendly SQLite."
+    },
+    "@vercel/postgres": {
+      "category": "database",
+      "subcategory": "serverless_db",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 10,
+      "scaling_signal": true,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Vercel Postgres — tied to Vercel platform spend."
+    },
+    "@xata.io/client": {
+      "category": "database",
+      "subcategory": "serverless_db",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 4,
+      "intent_weight": 10,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Xata serverless database."
+    },
+    "@upstash/redis": {
+      "category": "caching",
+      "subcategory": "serverless_cache",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 12,
+      "scaling_signal": true,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Upstash Redis — serverless, usage-based."
+    },
+    "@trigger.dev/sdk": {
+      "category": "queues",
+      "subcategory": "background_jobs",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 15,
+      "scaling_signal": true,
+      "pain_category": "job_orchestration",
+      "runtime_only": true,
+      "note": "Trigger.dev job scheduler; production workflow signal."
+    },
+    "temporalio": {
+      "category": "queues",
+      "subcategory": "workflow_orchestration",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 12,
+      "intent_weight": 20,
+      "scaling_signal": true,
+      "pain_category": "job_orchestration",
+      "runtime_only": true,
+      "note": "Temporal workflow engine — strong production signal."
+    },
+    "sendgrid": {
+      "category": "email",
+      "subcategory": "transactional",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder",
+        "growth_engineer"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 15,
+      "scaling_signal": false,
+      "pain_category": "email_deliverability",
+      "runtime_only": true,
+      "note": "SendGrid transactional email — confirmed spend."
+    },
+    "datadog-lambda": {
+      "category": "monitoring",
+      "subcategory": "apm",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 10,
+      "intent_weight": 18,
+      "scaling_signal": true,
+      "pain_category": "observability",
+      "runtime_only": true,
+      "note": "Datadog Lambda layer — confirmed infra spend."
+    },
+    "plausible": {
+      "category": "analytics",
+      "subcategory": "web_analytics",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "growth_engineer",
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 12,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Privacy-focused analytics; signals product with web presence."
+    },
+    "@umami/nextjs": {
+      "category": "analytics",
+      "subcategory": "web_analytics",
+      "budget_signal": null,
+      "archetype_signals": [
+        "growth_engineer"
+      ],
+      "maturity_modifier": 5,
+      "intent_weight": 10,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Umami analytics integration."
+    },
+    "hotjar": {
+      "category": "analytics",
+      "subcategory": "session_recording",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "growth_engineer",
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 15,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Hotjar session recording — confirmed paid product."
+    },
+    "@fullstory/browser": {
+      "category": "analytics",
+      "subcategory": "session_recording",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "growth_engineer",
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 15,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "FullStory — paid session analytics."
+    },
+    "@logrocket/logrocket": {
+      "category": "analytics",
+      "subcategory": "session_recording",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "growth_engineer"
+      ],
+      "maturity_modifier": 7,
+      "intent_weight": 12,
+      "scaling_signal": false,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "LogRocket session replay."
+    },
+    "@kubernetes/client-node": {
+      "category": "infra",
+      "subcategory": "orchestration",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 15,
+      "intent_weight": 25,
+      "scaling_signal": true,
+      "pain_category": "infra_complexity",
+      "runtime_only": true,
+      "note": "K8s client — serious infra investment."
+    },
+    "@cdktf/provider-aws": {
+      "category": "infra",
+      "subcategory": "iac",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 15,
+      "intent_weight": 20,
+      "scaling_signal": true,
+      "pain_category": "infra_complexity",
+      "runtime_only": false,
+      "note": "CDK for Terraform."
+    },
+    "pulumi": {
+      "category": "infra",
+      "subcategory": "iac",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 12,
+      "intent_weight": 18,
+      "scaling_signal": true,
+      "pain_category": "infra_complexity",
+      "runtime_only": false,
+      "note": "Pulumi IaC — Python/TS infra as code."
+    },
+    "aws-cdk-lib": {
+      "category": "infra",
+      "subcategory": "iac",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 15,
+      "intent_weight": 22,
+      "scaling_signal": true,
+      "pain_category": "infra_complexity",
+      "runtime_only": false,
+      "note": "AWS CDK — confirmed AWS spend."
+    },
+    "@google-cloud/storage": {
+      "category": "infra",
+      "subcategory": "cloud_sdk",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 15,
+      "scaling_signal": true,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "GCS SDK — confirmed GCP spend."
+    },
+    "@azure/identity": {
+      "category": "infra",
+      "subcategory": "cloud_sdk",
+      "budget_signal": "confirmed",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 15,
+      "scaling_signal": true,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Azure SDK — confirmed Azure spend."
+    },
+    "prometheus-client": {
+      "category": "monitoring",
+      "subcategory": "metrics",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 10,
+      "intent_weight": 15,
+      "scaling_signal": true,
+      "pain_category": "observability",
+      "runtime_only": true,
+      "note": "Prometheus metrics instrumentation."
+    },
+    "grafana": {
+      "category": "monitoring",
+      "subcategory": "dashboarding",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 10,
+      "intent_weight": 15,
+      "scaling_signal": true,
+      "pain_category": "observability",
+      "runtime_only": false,
+      "note": "Grafana metrics visualization."
+    },
+    "elasticsearch": {
+      "category": "database",
+      "subcategory": "search",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 10,
+      "intent_weight": 15,
+      "scaling_signal": true,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "Elasticsearch client — implies search infra investment."
+    },
+    "opensearch-py": {
+      "category": "database",
+      "subcategory": "search",
+      "budget_signal": "possible",
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 10,
+      "intent_weight": 15,
+      "scaling_signal": true,
+      "pain_category": null,
+      "runtime_only": true,
+      "note": "OpenSearch Python client."
+    },
+    "vector": {
+      "category": "logging",
+      "subcategory": "pipeline",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 12,
+      "scaling_signal": true,
+      "pain_category": "observability",
+      "runtime_only": false,
+      "note": "Vector log pipeline tool."
+    },
+    "fluent-logger": {
+      "category": "logging",
+      "subcategory": "pipeline",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 6,
+      "intent_weight": 10,
+      "scaling_signal": true,
+      "pain_category": "observability",
+      "runtime_only": true,
+      "note": "Fluentd log forwarding client."
+    },
+    "loki": {
+      "category": "logging",
+      "subcategory": "aggregation",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 8,
+      "intent_weight": 12,
+      "scaling_signal": true,
+      "pain_category": "observability",
+      "runtime_only": false,
+      "note": "Grafana Loki log aggregation."
+    },
+    "@opentelemetry/sdk-node": {
+      "category": "monitoring",
+      "subcategory": "tracing",
+      "budget_signal": null,
+      "archetype_signals": [
+        "technical_founder"
+      ],
+      "maturity_modifier": 10,
+      "intent_weight": 15,
+      "scaling_signal": true,
+      "pain_category": "observability",
+      "runtime_only": true,
+      "note": "OpenTelemetry Node.js SDK."
+    }
+  }
+}

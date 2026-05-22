@@ -449,7 +449,7 @@ def log_enrichment_cost(
     llm_calls: int,
     input_tokens: int,
     output_tokens: int,
-    provider: str = "anthropic",
+    provider: str = "ollama",
     prompt: str | None = None,
     response: str | None = None,
 ) -> None:

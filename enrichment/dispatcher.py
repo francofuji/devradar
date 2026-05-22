@@ -61,7 +61,7 @@ def _ping_worker_heartbeat(job_type: str) -> None:
     except Exception as exc:
         logger.warning(f"dispatcher.heartbeat_failed: {exc}")
 
-_BATCH_SIZE = 5
+_BATCH_SIZE = 20
 _LOOP_INTERVAL_SECONDS = 60
 _INTER_JOB_SLEEP_SECONDS = 3  # pausa entre jobs para no agotar el rate limit de GitHub
 

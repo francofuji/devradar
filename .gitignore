@@ -1,0 +1,10 @@
+.env
+db/*.db
+logs/
+__pycache__/
+*.pyc
+.DS_Store
+output/
+.venv/
+CLAUDE.md
+.claude/

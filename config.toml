@@ -1,0 +1,60 @@
+[ecosystem]
+name = "ai_automation_builders"
+github_topics = ["mcp", "langchain", "browser-automation", "ai-agent", "playwright-automation", "llm-agent", "ai-tools"]
+primary_languages = ["Python", "TypeScript"]
+min_stars = 5
+max_stars = 5000
+created_after = "2024-01-01"
+
+[scoring]
+qualified_threshold = 75
+warm_threshold = 50
+monitor_threshold = 20
+reactivation_multiplier = 0.75
+[scoring.half_life_days]
+product_launch = 2
+tool_comparison = 3
+hiring_signal = 14
+funding_event = 21
+dependency_added = 7
+issue_pain = 30
+stars_spike = 5
+article_published = 14
+commit_velocity = 10
+stack_inference = 9999
+
+[llm]
+provider = "ollama"
+ollama_base_url = "http://ollama:11434"
+ollama_model_extraction = "llama3.2:3b"
+ollama_model_narrative = "llama3.2:3b"
+ollama_model_draft = "llama3.2:3b"
+# llama3.1:8b requiere ~4.8 GiB — no cabe en esta máquina (7.7 GiB total, ~4.0 libre)
+# Para habilitar: hacer upgrade de RAM a ≥10 GiB y cambiar los valores arriba
+anthropic_model_extraction = "claude-haiku-4-5-20251001"
+anthropic_model_narrative = "claude-sonnet-4-6"
+anthropic_model_draft = "claude-sonnet-4-6"
+ollama_timeout_seconds = 180
+ollama_temperature = 0.3
+cache_ttl_extraction = 86400
+cache_ttl_narrative = 43200
+cache_ttl_draft = 21600
+max_tokens_extraction = 1024
+max_tokens_narrative = 512
+max_tokens_draft = 1024
+min_readme_words = 150
+min_confidence = 0.6
+archetype_llm_threshold = 0.75
+
+[collectors]
+github_scan_interval_hours = 6
+hn_scan_interval_hours = 4
+monitor_interval_hours = 12
+enrichment_poll_minutes = 15
+max_repos_per_monitor_run = 100
+max_issues_per_repo = 20
+
+[output]
+daily_digest_hour = 7
+weekly_report_day = "sunday"
+weekly_report_hour = 18

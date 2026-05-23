@@ -76,9 +76,16 @@ function DraftEditor({ section, value, onChange, disabled, onApprove, approveSta
           <button
             className="btn-ghost"
             onClick={() => setShowExternal((v) => !v)}
-            style={{ fontSize: "0.75rem" }}
           >
             {showExternal ? "▲ Ocultar versión externa" : "▼ Pegar versión externa (ChatGPT / Claude)"}
+          </button>
+
+          <button
+            className="btn-primary"
+            onClick={handleApprove}
+            disabled={isApproving}
+          >
+            {isApproving ? "Aprobando…" : `Aprobar variante ${variantLabel}`}
           </button>
 
           {showExternal && (
@@ -86,7 +93,7 @@ function DraftEditor({ section, value, onChange, disabled, onApprove, approveSta
               <div className="draft-external__header">
                 <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Fuente:</span>
                 {SOURCES.map((s) => (
-                  <label key={s.value} className={`reply-outcome ${externalSource === s.value ? "reply-outcome--active" : ""}`} style={{ fontSize: "0.72rem", padding: "0.15rem 0.5rem" }}>
+                  <label key={s.value} className={`reply-outcome ${externalSource === s.value ? "reply-outcome--active" : ""}`}>
                     <input
                       type="radio"
                       name={`source-${section.title}`}
@@ -104,24 +111,14 @@ function DraftEditor({ section, value, onChange, disabled, onApprove, approveSta
                 value={externalText}
                 onChange={(e) => setExternalText(e.target.value)}
                 rows={5}
-                style={{ marginTop: "0.4rem", borderColor: "var(--accent-indigo, #6366f1)", opacity: 0.9 }}
               />
               {externalText.trim() && (
                 <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>
-                  Esta versión se usará como approved_output al aprobar.
+                  ✓ Se usará esta versión como approved_output al aprobar.
                 </span>
               )}
             </div>
           )}
-
-          <button
-            className="btn-primary"
-            onClick={handleApprove}
-            disabled={isApproving}
-            style={{ marginTop: "0.6rem", fontSize: "0.8rem", padding: "0.35rem 0.9rem" }}
-          >
-            {isApproving ? "Aprobando…" : `Aprobar variante ${variantLabel} para fine-tuning`}
-          </button>
         </div>
       )}
     </div>

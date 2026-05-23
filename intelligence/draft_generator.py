@@ -18,8 +18,6 @@ from pathlib import Path
 from db.memory_queries import get_latest_memory
 from db.queries import get_developer
 from enrichment.llm_client import call_llm
-from fine_tuning.capture import capture_example
-
 def _load_config() -> dict:
     """Load and cache full config.toml."""
     try:
@@ -55,13 +53,6 @@ def _load_product_context() -> dict:
         "avoid_mentioning": p.get("avoid_mentioning", []),
     }
 
-
-def _provider_from_model(model_name: str | None) -> str | None:
-    if not model_name:
-        return None
-    if "claude" in model_name.lower():
-        return "anthropic"
-    return "ollama"
 
 
 def _utc_today() -> str:
@@ -273,22 +264,6 @@ def _generate_llm_variants(entity_id: str, memory: dict, outreach_context: dict)
                 "evidence_used": [str(x) for x in raw_evidence if str(x).strip()],
             })
         if len(clean) >= 2:
-            for item in clean[:2]:
-                try:
-                    capture_example(
-                        task_type="draft",
-                        system_prompt=system_prompt,
-                        user_input=prompt,
-                        model_output=item["message"],
-                        approved_output=item["message"],
-                        entity_id=entity_id,
-                        provider=_provider_from_model(llm_result.get("model")),
-                        model_used=llm_result.get("model"),
-                        variant_label=item.get("label"),
-                        source="ollama",
-                    )
-                except Exception:
-                    pass
             return clean[:2], None
         return [], "LLM returned insufficient variants"
     except Exception as exc:

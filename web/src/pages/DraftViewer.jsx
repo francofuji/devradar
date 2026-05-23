@@ -171,7 +171,7 @@ function ReplyForm({ handle, onSaved }) {
       </select>
       <textarea
         className="modal-textarea"
-        placeholder="Notas sobre la respuesta…"
+        placeholder="Texto de la respuesta del developer…"
         rows={3}
         value={notes}
         onChange={(e) => setNotes(e.target.value)}

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -13,7 +14,13 @@ from db.events import emit_event
 from db.memory_queries import get_latest_memory
 from db.queries import get_developer, update_developer_profile_fields
 from enrichment.memory_writer import update_memory_on_event
-from intelligence.draft_generator import build_draft_prompt, generate_outreach_draft, _load_outreach_context
+from fine_tuning.capture import capture_example
+from intelligence.draft_generator import (
+    _load_draft_model,
+    _load_outreach_context,
+    build_draft_prompt,
+    generate_outreach_draft,
+)
 
 log = structlog.get_logger().bind(module="api.routers.outreach")
 router = APIRouter(prefix="/api/outreach", tags=["outreach"])
@@ -23,27 +30,6 @@ OUTPUT_DIR = PROJECT_ROOT / "output" / "drafts"
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
-
-
-def _normalize_text(value: str) -> str:
-    return " ".join((value or "").strip().split())
-
-
-def _edit_distance(model_output: str, approved_output: str) -> float:
-    from difflib import SequenceMatcher
-
-    similarity = SequenceMatcher(None, _normalize_text(model_output), _normalize_text(approved_output)).ratio()
-    return round(1.0 - similarity, 4)
-
-
-def _quality_score(model_output: str, approved_output: str) -> float:
-    from difflib import SequenceMatcher
-
-    normalized_approved = _normalize_text(approved_output)
-    if len(normalized_approved) < 8:
-        return 0.0
-    similarity = SequenceMatcher(None, _normalize_text(model_output), normalized_approved).ratio()
-    return round(similarity, 4)
 
 
 def _draft_path(handle: str) -> Path | None:
@@ -257,78 +243,76 @@ def regenerate_draft(handle: str) -> dict[str, Any]:
     return payload
 
 
+def _variant_label_from_title(title: str) -> str | None:
+    """Extract label letter ('A', 'B'…) from section title like 'Variante 1 — A'."""
+    m = re.search(r"—\s*([A-Z])$", title)
+    return m.group(1) if m else None
+
+
 @router.post("/{handle}/draft/approve")
 def approve_draft(handle: str, payload: DraftApprovalRequest) -> dict[str, Any]:
     if get_developer(handle) is None:
         raise HTTPException(status_code=404, detail=f"Developer no encontrado: {handle}")
 
-    with db_cursor() as cur:
-        if payload.example_id:
-            cur.execute(
-                """
-                SELECT id, model_output
-                FROM fine_tuning_examples
-                WHERE id = %s AND entity_id = %s AND task_type = 'draft'
-                """,
-                (payload.example_id, handle),
-            )
-        elif payload.variant_label:
-            # Try exact variant match first, fall back to latest row (legacy rows have NULL label)
-            cur.execute(
-                """
-                SELECT id, model_output
-                FROM fine_tuning_examples
-                WHERE entity_id = %s AND task_type = 'draft'
-                  AND (variant_label = %s OR variant_label IS NULL)
-                ORDER BY
-                  CASE WHEN variant_label = %s THEN 0 ELSE 1 END,
-                  created_at DESC
-                LIMIT 1
-                """,
-                (handle, payload.variant_label, payload.variant_label),
-            )
-        else:
-            cur.execute(
-                """
-                SELECT id, model_output
-                FROM fine_tuning_examples
-                WHERE entity_id = %s AND task_type = 'draft'
-                ORDER BY created_at DESC
-                LIMIT 1
-                """,
-                (handle,),
-            )
-        row = cur.fetchone()
+    # ── 1. Extract model_output from the draft file ──────────────────────────
+    path = _draft_path(handle)
+    if path is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No hay draft para {handle}. Genera o regenera el draft primero.",
+        )
+    draft_data = _parse_draft(path)
 
-        if row is None:
-            raise HTTPException(status_code=404, detail=f"No hay ejemplo draft para {handle}. Regenera el draft para crear uno nuevo.")
+    model_output: str | None = None
+    for section in draft_data["sections"]:
+        label = _variant_label_from_title(section["title"])
+        if payload.variant_label:
+            if label == payload.variant_label:
+                model_output = section["content"]
+                break
+        elif re.search(r"Variante\s+\d", section["title"]):
+            # No variant_label specified — use the first variant section found
+            model_output = section["content"]
+            break
 
-        approved_output = _normalize_text(payload.approved_output)
-        model_output = _normalize_text(row["model_output"])
-        cur.execute(
-            """
-            UPDATE fine_tuning_examples
-            SET approved_output = %s,
-                was_edited = %s,
-                edit_distance = %s,
-                quality_score = %s,
-                approved_at = NOW(),
-                outcome = 'approved',
-                source = %s
-            WHERE id = %s
-            """,
-            (
-                approved_output,
-                model_output != approved_output,
-                _edit_distance(model_output, approved_output),
-                _quality_score(model_output, approved_output),
-                payload.source,
-                row["id"],
-            ),
+    if not model_output:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Variante '{payload.variant_label}' no encontrada en el draft de {handle}.",
         )
 
+    # ── 2. Reconstruct the prompt for fine-tuning ────────────────────────────
+    memory = get_latest_memory(handle)
+    system_prompt = ""
+    user_input = ""
+    if memory:
+        try:
+            outreach_context = _load_outreach_context(memory)
+            system_prompt, user_input = build_draft_prompt(handle, memory, outreach_context)
+        except Exception:
+            pass  # Missing prompt is recoverable — the example is still useful
+
+    draft_model, _ = _load_draft_model()
+
+    # ── 3. INSERT the approved example ───────────────────────────────────────
+    try:
+        example_id = capture_example(
+            task_type="draft",
+            system_prompt=system_prompt,
+            user_input=user_input,
+            model_output=model_output,
+            approved_output=payload.approved_output,
+            entity_id=handle,
+            provider="ollama",
+            model_used=draft_model,
+            variant_label=payload.variant_label,
+            source=payload.source,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Error guardando ejemplo: {exc}") from exc
+
     update_developer_profile_fields(handle, outreach_status="drafted", last_active=_now_iso())
-    return {"ok": True, "example_id": row["id"], "entity_id": handle, "variant_label": payload.variant_label}
+    return {"ok": True, "example_id": example_id, "entity_id": handle, "variant_label": payload.variant_label}
 
 
 @router.post("/{handle}/reply")

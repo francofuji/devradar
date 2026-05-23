@@ -13,7 +13,7 @@ from db.events import emit_event
 from db.memory_queries import get_latest_memory
 from db.queries import get_developer, update_developer_profile_fields
 from enrichment.memory_writer import update_memory_on_event
-from intelligence.draft_generator import generate_outreach_draft
+from intelligence.draft_generator import build_draft_prompt, generate_outreach_draft, _load_outreach_context
 
 log = structlog.get_logger().bind(module="api.routers.outreach")
 router = APIRouter(prefix="/api/outreach", tags=["outreach"])
@@ -156,6 +156,37 @@ def get_or_generate_draft(handle: str) -> dict[str, Any]:
     payload = _parse_draft(path)
     payload["generated"] = generated
     return payload
+
+
+@router.get("/{handle}/draft/prompt")
+def get_draft_prompt(handle: str) -> dict[str, Any]:
+    """Return the system + user prompt used to generate this developer's draft.
+    Useful for pasting into ChatGPT, Claude.ai, or any other LLM manually.
+    """
+    developer = get_developer(handle)
+    if developer is None:
+        raise HTTPException(status_code=404, detail=f"Developer no encontrado: {handle}")
+
+    memory = get_latest_memory(handle)
+    if not memory:
+        raise HTTPException(status_code=404, detail=f"Sin memoria activa para {handle}")
+
+    outreach_context = _load_outreach_context(memory)
+
+    try:
+        system_prompt, user_prompt = build_draft_prompt(handle, memory, outreach_context)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+    combined = (
+        f"SYSTEM PROMPT\n{'=' * 60}\n{system_prompt}\n\n"
+        f"{'=' * 60}\nUSER INPUT\n{'=' * 60}\n{user_prompt}"
+    )
+    return {
+        "system_prompt": system_prompt,
+        "user_prompt": user_prompt,
+        "combined": combined,
+    }
 
 
 @router.post("/{handle}/draft/regenerate")

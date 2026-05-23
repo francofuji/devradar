@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchEntity } from "../api/entities";
-import { approveDraft, fetchDraft, regenerateDraft, registerReply } from "../api/outreach";
+import { approveDraft, fetchDraft, fetchDraftPrompt, regenerateDraft, registerReply } from "../api/outreach";
 import Badge from "../components/ui/Badge";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import PainSignal from "../components/ui/PainSignal";
@@ -121,6 +121,7 @@ export default function DraftViewer() {
   const [edits, setEdits] = useState({});
   const [regenerating, setRegenerating] = useState(false);
   const [regenerated, setRegenerated] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [approving, setApproving] = useState(false);
   const [approveError, setApproveError] = useState(null);
   const [approved, setApproved] = useState(false);
@@ -356,6 +357,21 @@ export default function DraftViewer() {
                       {regenerating ? "Generando…" : "Regenerar"}
                     </button>
                     {regenerated && <Badge tone="green">¡Regenerado! ✓</Badge>}
+                    <button
+                      className="btn-secondary"
+                      onClick={async () => {
+                        try {
+                          const data = await fetchDraftPrompt(handle);
+                          await navigator.clipboard.writeText(data.combined);
+                          setCopied(true);
+                          setTimeout(() => setCopied(false), 3000);
+                        } catch {
+                          // fallback silencioso
+                        }
+                      }}
+                    >
+                      {copied ? "¡Copiado! ✓" : "Copiar prompt"}
+                    </button>
                     <button
                       className="btn-primary"
                       onClick={handleApprove}

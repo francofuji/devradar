@@ -19,3 +19,7 @@ export function approveDraft(handle, payload) {
 export function registerReply(handle, payload) {
   return post(`/api/outreach/${handle}/reply`, payload);
 }
+
+export function fetchDraftPrompt(handle) {
+  return get(`/api/outreach/${handle}/draft/prompt`);
+}

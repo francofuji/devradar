@@ -117,15 +117,29 @@ def _build_fallback_variants(entity_id: str, memory: dict, outreach_context: dic
     return variants
 
 
-def _generate_llm_variants(entity_id: str, memory: dict, outreach_context: dict) -> tuple[list[dict], str | None]:
+_META_PATTERNS = re.compile(
+    r"(dependencies detected|push recorded|enrichment ran|last push|"
+    r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}|signal_type|category:|intent_score)",
+    re.IGNORECASE,
+)
+_META_SENTENCE_PATTERNS = re.compile(
+    r"[^.!?]*("
+    r"enrichment ran|dependencies detected|push recorded|last push|"
+    r"signal_type|intent_score|outreach_status|entity_id|"
+    r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}"
+    r")[^.!?]*[.!?]?",
+    re.IGNORECASE,
+)
+
+
+def build_draft_prompt(entity_id: str, memory: dict, outreach_context: dict) -> tuple[str, str]:
+    """Return (system_prompt, user_prompt) for the outreach draft LLM call.
+
+    Extracted so the same prompt can be returned to the operator via API
+    (to copy-paste into ChatGPT / Claude.ai / etc.) without calling the LLM.
+    """
     raw_hooks = outreach_context.get("specific_hooks") or memory.get("specific_hooks") or []
-    # Filter out internal metadata strings before passing to LLM
-    _meta_patterns = re.compile(
-        r"(dependencies detected|push recorded|enrichment ran|last push|"
-        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}|signal_type|category:|intent_score)",
-        re.IGNORECASE,
-    )
-    hooks = [h for h in raw_hooks if not _meta_patterns.search(str(h))]
+    hooks = [h for h in raw_hooks if not _META_PATTERNS.search(str(h))]
     pain_signals = memory.get("confirmed_pain_signals", [])
     vocabulary_to_avoid = outreach_context.get("vocabulary_to_avoid") or []
 
@@ -150,7 +164,7 @@ Use the provided context to write two message variants.
 Rules:
 (1) Reference ONE specific, verifiable observation from their actual project — a design decision, a library choice, an architectural pattern, a problem they're visibly solving. Never copy internal metadata strings like "dependencies detected" or field names.
 (2) Maximum 3 sentences per variant. Under 50 words total.
-(3) Do not use these words: {{vocabulary_to_avoid}}.
+(3) Do not use these words: {", ".join(vocab_avoid_all) or "none"}.
 (4) Write as a technical peer who genuinely read the repo, not a salesperson.
 (5) No links, no pitching, no attachments. End with a single open question or concrete offer.
 (6) The evidence_used field must contain a human-readable sentence explaining what you observed, not raw metadata.
@@ -159,18 +173,9 @@ Return strict JSON only:
 {{"variants":[{{"label":"A","message":"string","evidence_used":["string"]}},{{"label":"B","message":"string","evidence_used":["string"]}}]}}"""
 
     raw_narrative = memory.get("narrative") or memory.get("_summary") or ""
-    # Strip sentences containing internal metadata from the narrative
-    _meta_sentence_patterns = re.compile(
-        r"[^.!?]*("
-        r"enrichment ran|dependencies detected|push recorded|last push|"
-        r"signal_type|intent_score|outreach_status|entity_id|"
-        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}"
-        r")[^.!?]*[.!?]?",
-        re.IGNORECASE,
-    )
-    clean_narrative = _meta_sentence_patterns.sub("", raw_narrative).strip()
+    clean_narrative = _META_SENTENCE_PATTERNS.sub("", raw_narrative).strip()
 
-    prompt = json.dumps(
+    user_prompt = json.dumps(
         {
             "entity_id": entity_id,
             "narrative": clean_narrative or None,
@@ -180,13 +185,21 @@ Return strict JSON only:
             "vocabulary_to_avoid": vocab_avoid_all,
         },
         ensure_ascii=True,
+        indent=2,
     )
+
+    return system_prompt, user_prompt
+
+
+def _generate_llm_variants(entity_id: str, memory: dict, outreach_context: dict) -> tuple[list[dict], str | None]:
+    system_prompt, prompt = build_draft_prompt(entity_id, memory, outreach_context)
+    vocab_avoid_all = json.loads(prompt).get("vocabulary_to_avoid", [])
 
     draft_model, _ = _load_draft_model()
     try:
         llm_result = call_llm(
             prompt,
-            system_prompt.replace("{vocabulary_to_avoid}", ", ".join(vocab_avoid_all)),
+            system_prompt,
             model=draft_model,
             max_tokens=700,
             entity_id=entity_id,
@@ -204,7 +217,7 @@ Return strict JSON only:
         variants = parsed.get("variants") or []
         clean = []
         for item in variants[:2]:
-            message = _sanitize_variant(str(item.get("message", "")), vocabulary_to_avoid)
+            message = _sanitize_variant(str(item.get("message", "")), vocab_avoid_all)
             if not message:
                 continue
             # evidence_used may be a string or a list depending on the model
@@ -221,7 +234,7 @@ Return strict JSON only:
                 try:
                     capture_example(
                         task_type="draft",
-                        system_prompt=system_prompt.replace("{vocabulary_to_avoid}", ", ".join(vocabulary_to_avoid)),
+                        system_prompt=system_prompt,
                         user_input=prompt,
                         model_output=item["message"],
                         approved_output=item["message"],

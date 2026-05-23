@@ -110,10 +110,13 @@ export default function DraftViewer() {
   const [edits, setEdits] = useState({});
   const [channel, setChannel] = useState("LinkedIn");
   const [regenerating, setRegenerating] = useState(false);
+  const [regenerated, setRegenerated] = useState(false);
   const [approving, setApproving] = useState(false);
   const [approveError, setApproveError] = useState(null);
   const [approved, setApproved] = useState(false);
   const [showReply, setShowReply] = useState(false);
+
+  const draftPanelRef = useRef(null);
 
   const loadProfile = useCallback(async () => {
     try {
@@ -329,6 +332,7 @@ export default function DraftViewer() {
                       disabled={regenerating}
                       onClick={async () => {
                         setRegenerating(true);
+                        setRegenerated(false);
                         setEdits({});
                         setDraftError(null);
                         try {
@@ -339,8 +343,10 @@ export default function DraftViewer() {
                             initial[s.title] = s.content;
                           }
                           setEdits(initial);
+                          setRegenerated(true);
+                          setTimeout(() => setRegenerated(false), 3000);
                         } catch (err) {
-                          setDraftError(err.message || "Error regenerating draft");
+                          setDraftError(err.message || "Error regenerando draft");
                         } finally {
                           setRegenerating(false);
                         }
@@ -348,6 +354,7 @@ export default function DraftViewer() {
                     >
                       {regenerating ? "Generando…" : "Regenerar"}
                     </button>
+                    {regenerated && <Badge tone="green">¡Regenerado! ✓</Badge>}
                     <button
                       className="btn-primary"
                       onClick={handleApprove}

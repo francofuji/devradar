@@ -149,7 +149,6 @@ def get_or_generate_draft(handle: str) -> dict[str, Any]:
         try:
             path = Path(generate_outreach_draft(handle))
             generated = True
-            update_developer_profile_fields(handle, outreach_status="drafted", last_active=_now_iso())
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc)) from exc
 
@@ -199,7 +198,6 @@ def regenerate_draft(handle: str) -> dict[str, Any]:
             old.unlink()
     try:
         path = Path(generate_outreach_draft(handle))
-        update_developer_profile_fields(handle, outreach_status="drafted", last_active=_now_iso())
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     payload = _parse_draft(path)

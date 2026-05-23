@@ -15,26 +15,30 @@ function wordCount(text) {
   return (text || "").trim().split(/\s+/).filter(Boolean).length;
 }
 
-function DraftEditor({ section, value, onChange }) {
+function DraftEditor({ section, value, onChange, disabled }) {
   const original = section.content;
-  const edited = value !== original;
+  const edited = !disabled && value !== original;
   const wc = wordCount(value);
-  const wcOver = wc > 50;
+  const wcOver = !disabled && wc > 50;
 
   return (
-    <div className="draft-editor">
+    <div className={`draft-editor${disabled ? " draft-editor--loading" : ""}`}>
       <div className="draft-editor__header">
         <span className="draft-editor__title">{section.title}</span>
         {edited && <Badge tone="amber">Editado</Badge>}
-        <span className={`draft-editor__wc ${wcOver ? "draft-editor__wc--over" : ""}`}>
-          {wc} palabras{wcOver ? " ⚠ >50" : ""}
-        </span>
+        {!disabled && (
+          <span className={`draft-editor__wc ${wcOver ? "draft-editor__wc--over" : ""}`}>
+            {wc} palabras{wcOver ? " ⚠ >50" : ""}
+          </span>
+        )}
       </div>
       <textarea
         className="draft-editor__textarea"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={Math.max(4, value.split("\n").length + 1)}
+        disabled={disabled}
+        style={disabled ? { opacity: 0.45, fontStyle: "italic", cursor: "wait" } : {}}
       />
     </div>
   );
@@ -276,10 +280,11 @@ export default function DraftViewer() {
                     <DraftEditor
                       key={section.title}
                       section={section}
-                      value={edits[section.title] ?? section.content}
+                      value={regenerating ? "GENERANDO..." : (edits[section.title] ?? section.content)}
                       onChange={(val) =>
-                        setEdits((prev) => ({ ...prev, [section.title]: val }))
+                        !regenerating && setEdits((prev) => ({ ...prev, [section.title]: val }))
                       }
+                      disabled={regenerating}
                     />
                   ))}
                 </div>
@@ -324,6 +329,7 @@ export default function DraftViewer() {
                       disabled={regenerating}
                       onClick={async () => {
                         setRegenerating(true);
+                        setEdits({});
                         setDraftError(null);
                         try {
                           const data = await regenerateDraft(handle);

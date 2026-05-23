@@ -265,19 +265,15 @@ def generate_outreach_draft(entity_id: str) -> str:
         body.append("- Draft generation mode: LLM")
     body.append("")
 
+    # Evidencia separada — no contamina el texto editable de cada variante
+    evidence_notes = []
     for idx, item in enumerate(variants, start=1):
         body.extend([
             f"## Variante {idx} — {item['label']}",
             item["message"],
             "",
-            "Evidence used:",
-            *([f"- {e}" for e in item.get("evidence_used", [])] or ["- Sin evidencia explícita"]),
-            "",
-            "Qué editar antes de enviar:",
-            "- Ajustar el canal si no será email.",
-            "- Reemplazar la última frase por un CTA más concreto si ya hubo contacto previo.",
-            "",
         ])
+        evidence_notes.append((idx, item["label"], item.get("evidence_used", [])))
 
     body.extend([
         "## Acciones del operador",
@@ -285,7 +281,12 @@ def generate_outreach_draft(entity_id: str) -> str:
         "- [ ] Usar Variante 2",
         "- [ ] Editar antes de enviar",
         "",
+        "## Notas del operador",
     ])
+    for idx, label, evidence in evidence_notes:
+        body.append(f"**Variante {idx} — {label}** · evidencia usada:")
+        body.extend([f"- {e}" for e in evidence] or ["- Sin evidencia explícita"])
+    body.append("")
 
     path.write_text("\n".join(body), encoding="utf-8")
     return str(path)

@@ -20,15 +20,20 @@ from db.queries import get_developer
 from enrichment.llm_client import call_llm
 from fine_tuning.capture import capture_example
 
-def _load_draft_model() -> tuple[str, str]:
-    """Return (model_name, provider) from config.toml."""
+def _load_config() -> dict:
+    """Load and cache full config.toml."""
     try:
         import tomllib
     except ImportError:
         import tomli as tomllib  # type: ignore
     config_path = Path(_project_root) / "config.toml"
     with open(config_path, "rb") as f:
-        cfg = tomllib.load(f)
+        return tomllib.load(f)
+
+
+def _load_draft_model() -> tuple[str, str]:
+    """Return (model_name, provider) from config.toml."""
+    cfg = _load_config()
     llm = cfg.get("llm", {})
     provider = llm.get("provider", "ollama")
     if provider == "anthropic":
@@ -36,6 +41,19 @@ def _load_draft_model() -> tuple[str, str]:
     else:
         model = llm.get("ollama_model_draft", "llama3.2:3b")
     return model, provider
+
+
+def _load_product_context() -> dict:
+    """Return product section from config.toml, with safe defaults."""
+    cfg = _load_config()
+    p = cfg.get("product", {})
+    return {
+        "name": p.get("name", ""),
+        "one_liner": p.get("one_liner", ""),
+        "what_it_does": p.get("what_it_does", ""),
+        "relevant_when": p.get("relevant_when", ""),
+        "avoid_mentioning": p.get("avoid_mentioning", []),
+    }
 
 
 def _provider_from_model(model_name: str | None) -> str | None:
@@ -111,28 +129,55 @@ def _generate_llm_variants(entity_id: str, memory: dict, outreach_context: dict)
     pain_signals = memory.get("confirmed_pain_signals", [])
     vocabulary_to_avoid = outreach_context.get("vocabulary_to_avoid") or []
 
-    system_prompt = """You are writing a cold outreach message from one technical founder to another.
-Use the provided context to write two message variants.
+    product = _load_product_context()
+    vocab_avoid_all = list(set(vocabulary_to_avoid + product.get("avoid_mentioning", [])))
 
+    product_block = ""
+    if product.get("name"):
+        product_block = f"""
+Your product context (you are the founder of this):
+- Product: {product['name']}
+- What it does: {product['what_it_does'].strip()}
+- One-liner: {product['one_liner']}
+- Relevant when: {product['relevant_when'].strip()}
+
+Important: weave the product naturally into ONE of the two variants only if there is a clear, honest connection to the developer's actual stack or pain. If there is no clear connection, do not mention it — write a pure curiosity/observation message instead. Never pitch — frame it as a tool you built that might be relevant.
+"""
+
+    system_prompt = f"""You are writing a cold outreach message from one technical founder to another.
+Use the provided context to write two message variants.
+{product_block}
 Rules:
 (1) Reference ONE specific, verifiable observation from their actual project — a design decision, a library choice, an architectural pattern, a problem they're visibly solving. Never copy internal metadata strings like "dependencies detected" or field names.
 (2) Maximum 3 sentences per variant. Under 50 words total.
-(3) Do not use these words: {vocabulary_to_avoid}.
+(3) Do not use these words: {{vocabulary_to_avoid}}.
 (4) Write as a technical peer who genuinely read the repo, not a salesperson.
 (5) No links, no pitching, no attachments. End with a single open question or concrete offer.
 (6) The evidence_used field must contain a human-readable sentence explaining what you observed, not raw metadata.
 
 Return strict JSON only:
-{"variants":[{"label":"A","message":"string","evidence_used":["string"]},{"label":"B","message":"string","evidence_used":["string"]}]}"""
+{{"variants":[{{"label":"A","message":"string","evidence_used":["string"]}},{{"label":"B","message":"string","evidence_used":["string"]}}]}}"""
+
+    raw_narrative = memory.get("narrative") or memory.get("_summary") or ""
+    # Strip sentences containing internal metadata from the narrative
+    _meta_sentence_patterns = re.compile(
+        r"[^.!?]*("
+        r"enrichment ran|dependencies detected|push recorded|last push|"
+        r"signal_type|intent_score|outreach_status|entity_id|"
+        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}"
+        r")[^.!?]*[.!?]?",
+        re.IGNORECASE,
+    )
+    clean_narrative = _meta_sentence_patterns.sub("", raw_narrative).strip()
 
     prompt = json.dumps(
         {
             "entity_id": entity_id,
-            "narrative": memory.get("narrative") or memory.get("_summary"),
+            "narrative": clean_narrative or None,
             "recommended_angle": outreach_context.get("recommended_angle"),
             "specific_hooks": hooks[:4],
             "pain_signals": pain_signals[:4],
-            "vocabulary_to_avoid": vocabulary_to_avoid,
+            "vocabulary_to_avoid": vocab_avoid_all,
         },
         ensure_ascii=True,
     )
@@ -141,7 +186,7 @@ Return strict JSON only:
     try:
         llm_result = call_llm(
             prompt,
-            system_prompt.replace("{vocabulary_to_avoid}", ", ".join(vocabulary_to_avoid)),
+            system_prompt.replace("{vocabulary_to_avoid}", ", ".join(vocab_avoid_all)),
             model=draft_model,
             max_tokens=700,
             entity_id=entity_id,

@@ -56,3 +56,10 @@ max_issues_per_repo = 20
 daily_digest_hour = 7
 weekly_report_day = "sunday"
 weekly_report_hour = 18
+
+[product]
+name = "uncorreotemporal.com"
+one_liner = "Disposable email inboxes via API — no signup, instant, built for developers."
+what_it_does = "uncorreotemporal.com gives developers a temporary email address on demand via a simple API call. The inbox receives real emails and exposes them through an endpoint — useful for testing transactional email flows, agent-triggered notifications, signup verification in CI/CD, and any automation that needs a real inbox without creating a permanent account."
+relevant_when = "The developer uses playwright, puppeteer, or browser automation (email verification in test flows). They have email libraries in their stack (nodemailer, sendgrid, ses, resend, postmark). They build AI agents or MCP tools that could trigger notifications. They use mailtrap or mailhog (already care about email testing). They build multi-user apps with signup/verification flows."
+avoid_mentioning = ["price", "subscription", "free tier", "sign up", "register"]

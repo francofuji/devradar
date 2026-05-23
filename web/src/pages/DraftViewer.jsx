@@ -46,6 +46,7 @@ function DraftEditor({ section, value, onChange, disabled }) {
 
 function ReplyForm({ handle, onSaved }) {
   const [outcome, setOutcome] = useState("positive");
+  const [channel, setChannel] = useState("LinkedIn");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -56,7 +57,7 @@ function ReplyForm({ handle, onSaved }) {
     setSaving(true);
     setError(null);
     try {
-      await registerReply(handle, { outcome, notes: notes.trim() });
+      await registerReply(handle, { outcome, channel, notes: notes.trim() });
       onSaved();
     } catch (err) {
       setError(err.message || "Error registering reply");
@@ -81,6 +82,16 @@ function ReplyForm({ handle, onSaved }) {
           </label>
         ))}
       </div>
+      <select
+        className="entities-select"
+        value={channel}
+        onChange={(e) => setChannel(e.target.value)}
+        style={{ marginTop: "0.5rem" }}
+      >
+        {CHANNELS.map((c) => (
+          <option key={c} value={c}>{c}</option>
+        ))}
+      </select>
       <textarea
         className="modal-textarea"
         placeholder="Notas sobre la respuesta…"
@@ -108,7 +119,6 @@ export default function DraftViewer() {
   const [draftError, setDraftError] = useState(null);
 
   const [edits, setEdits] = useState({});
-  const [channel, setChannel] = useState("LinkedIn");
   const [regenerating, setRegenerating] = useState(false);
   const [regenerated, setRegenerated] = useState(false);
   const [approving, setApproving] = useState(false);
@@ -306,15 +316,6 @@ export default function DraftViewer() {
                   </div>
                 ) : (
                   <div className="draft-actions">
-                    <select
-                      className="entities-select"
-                      value={channel}
-                      onChange={(e) => setChannel(e.target.value)}
-                    >
-                      {CHANNELS.map((c) => (
-                        <option key={c} value={c}>{c}</option>
-                      ))}
-                    </select>
                     <button
                       className="btn-secondary"
                       onClick={() => {
@@ -360,7 +361,7 @@ export default function DraftViewer() {
                       onClick={handleApprove}
                       disabled={approving}
                     >
-                      {approving ? "Aprobando…" : `Aprobar vía ${channel}`}
+                      {approving ? "Aprobando…" : "Aprobar draft"}
                     </button>
                   </div>
                 )}

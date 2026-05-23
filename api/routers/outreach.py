@@ -77,6 +77,7 @@ class DraftApprovalRequest(BaseModel):
 
 class ReplyRequest(BaseModel):
     outcome: str = Field(pattern="^(positive|negative|neutral)$")
+    channel: str = Field(default="unknown", pattern="^(LinkedIn|Twitter|Email|unknown)$")
     notes: str = Field(min_length=1)
 
 
@@ -240,14 +241,14 @@ def register_reply(handle: str, payload: ReplyRequest) -> dict[str, Any]:
         "outreach.reply_received",
         handle,
         "developer",
-        {"outcome": payload.outcome, "notes": payload.notes},
+        {"outcome": payload.outcome, "channel": payload.channel, "notes": payload.notes},
         source="api",
         source_url=f"api://outreach/{handle}/reply/{_now_iso()}",
     )
     memory_version = update_memory_on_event(
         handle,
         "outreach.reply_received",
-        {"outcome": payload.outcome, "notes": payload.notes},
+        {"outcome": payload.outcome, "channel": payload.channel, "notes": payload.notes},
     )
 
     with db_cursor() as cur:

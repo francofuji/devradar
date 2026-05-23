@@ -1697,9 +1697,9 @@ textarea:focus {
 }
 
 .thread-avatar--in {
-  background: var(--surface-2, #1e2433);
-  color: var(--text-muted);
-  border: 1px solid var(--border);
+  background: var(--surface, #ffffff);
+  color: var(--muted);
+  border: 1px solid var(--border-strong, rgba(0,0,0,0.22));
 }
 
 .thread-bubble {

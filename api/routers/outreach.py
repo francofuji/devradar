@@ -91,6 +91,56 @@ class ReplyRequest(BaseModel):
     notes: str = Field(min_length=1)
 
 
+@router.get("/contacted")
+def outreach_contacted(limit: int = 50) -> dict[str, Any]:
+    """Developers que ya recibieron outreach (outreach_status != 'none')."""
+    limit = max(1, min(limit, 200))
+    with db_cursor() as cur:
+        cur.execute(
+            """
+            SELECT d.id, d.name, d.status, d.intent_score, d.maturity_score,
+                   d.archetype, d.outreach_status, d.last_enriched, d.last_active,
+                   d.email, d.twitter, d.github_url, d.avatar_url, d.location,
+                   m.summary AS narrative
+            FROM developers d
+            LEFT JOIN LATERAL (
+                SELECT summary
+                FROM entity_memory
+                WHERE entity_id = d.id AND status = 'active'
+                ORDER BY version DESC
+                LIMIT 1
+            ) m ON TRUE
+            WHERE d.outreach_status IN ('drafted', 'replied', 'sent')
+               OR d.status IN ('OUTREACHED', 'ENGAGED', 'CLOSED')
+            ORDER BY d.last_active DESC NULLS LAST
+            LIMIT %s
+            """,
+            (limit,),
+        )
+        rows = cur.fetchall()
+
+    return {
+        "items": [
+            {
+                "id": row["id"],
+                "name": row.get("name"),
+                "status": row["status"],
+                "intent_score": float(row["intent_score"] or 0.0),
+                "archetype": row.get("archetype"),
+                "outreach_status": row["outreach_status"],
+                "last_active": row["last_active"].isoformat() if row.get("last_active") else None,
+                "narrative": row.get("narrative"),
+                "email": row.get("email"),
+                "twitter": row.get("twitter"),
+                "github_url": row.get("github_url"),
+                "avatar_url": row.get("avatar_url"),
+                "location": row.get("location"),
+            }
+            for row in rows
+        ]
+    }
+
+
 @router.get("/queue")
 def outreach_queue(limit: int = 25) -> dict[str, Any]:
     limit = max(1, min(limit, 100))

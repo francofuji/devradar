@@ -4,6 +4,10 @@ export function fetchOutreachQueue() {
   return get("/api/outreach/queue");
 }
 
+export function fetchContacted() {
+  return get("/api/outreach/contacted");
+}
+
 export function fetchDraft(handle) {
   return get(`/api/outreach/${handle}/draft`, { timeout: 120000 });
 }

@@ -9,7 +9,7 @@ import ScoreBar from "../components/ui/ScoreBar";
 import PageFrame from "./PageFrame";
 import { formatArchetype, formatDaysAgo, formatScore } from "../utils/formatters";
 
-const CHANNELS = ["LinkedIn", "Twitter", "Email"];
+const CHANNELS = ["LinkedIn", "Twitter", "Email", "GitHub"];
 const SOURCES = [
   { value: "chatgpt", label: "ChatGPT" },
   { value: "claude", label: "Claude" },

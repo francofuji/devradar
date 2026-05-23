@@ -87,7 +87,7 @@ class DraftApprovalRequest(BaseModel):
 
 class ReplyRequest(BaseModel):
     outcome: str = Field(pattern="^(positive|negative|neutral)$")
-    channel: str = Field(default="unknown", pattern="^(LinkedIn|Twitter|Email|unknown)$")
+    channel: str = Field(default="unknown", pattern="^(LinkedIn|Twitter|Email|GitHub|unknown)$")
     notes: str = Field(min_length=1)
 
 

@@ -223,15 +223,19 @@ def approve_draft(handle: str, payload: DraftApprovalRequest) -> dict[str, Any]:
                 (payload.example_id, handle),
             )
         elif payload.variant_label:
+            # Try exact variant match first, fall back to latest row (legacy rows have NULL label)
             cur.execute(
                 """
                 SELECT id, model_output
                 FROM fine_tuning_examples
-                WHERE entity_id = %s AND task_type = 'draft' AND variant_label = %s
-                ORDER BY created_at DESC
+                WHERE entity_id = %s AND task_type = 'draft'
+                  AND (variant_label = %s OR variant_label IS NULL)
+                ORDER BY
+                  CASE WHEN variant_label = %s THEN 0 ELSE 1 END,
+                  created_at DESC
                 LIMIT 1
                 """,
-                (handle, payload.variant_label),
+                (handle, payload.variant_label, payload.variant_label),
             )
         else:
             cur.execute(
@@ -247,7 +251,7 @@ def approve_draft(handle: str, payload: DraftApprovalRequest) -> dict[str, Any]:
         row = cur.fetchone()
 
         if row is None:
-            raise HTTPException(status_code=404, detail=f"No hay ejemplo draft para {handle}")
+            raise HTTPException(status_code=404, detail=f"No hay ejemplo draft para {handle}. Regenera el draft para crear uno nuevo.")
 
         approved_output = _normalize_text(payload.approved_output)
         model_output = _normalize_text(row["model_output"])

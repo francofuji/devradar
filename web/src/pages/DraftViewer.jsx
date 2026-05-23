@@ -46,8 +46,10 @@ function DraftEditor({ section, value, onChange, disabled, onApprove, approveSta
     }
   }
 
-  const isApproved = approveState === "approved";
-  const isApproving = approveState === "approving";
+  const approveStatus = approveState?.status || approveState || "idle";
+  const approveErrorMsg = approveState?.error || null;
+  const isApproved = approveStatus === "approved";
+  const isApproving = approveStatus === "approving";
 
   return (
     <div className={`draft-editor${disabled ? " draft-editor--loading" : ""}`}>
@@ -80,13 +82,20 @@ function DraftEditor({ section, value, onChange, disabled, onApprove, approveSta
             {showExternal ? "▲ Ocultar versión externa" : "▼ Pegar versión externa (ChatGPT / Claude)"}
           </button>
 
-          <button
-            className="btn-primary"
-            onClick={handleApprove}
-            disabled={isApproving}
-          >
-            {isApproving ? "Aprobando…" : `Aprobar variante ${variantLabel}`}
-          </button>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.25rem" }}>
+            <button
+              className={`btn-primary${approveStatus === "error" ? " btn-error" : ""}`}
+              onClick={handleApprove}
+              disabled={isApproving}
+            >
+              {isApproving ? "Aprobando…" : `Aprobar variante ${variantLabel}`}
+            </button>
+            {approveErrorMsg && (
+              <span style={{ fontSize: "0.7rem", color: "var(--red, #ef4444)" }}>
+                ✗ {approveErrorMsg}
+              </span>
+            )}
+          </div>
 
           {showExternal && (
             <div className="draft-external">
@@ -192,9 +201,8 @@ export default function DraftViewer() {
   const [copied, setCopied] = useState(false);
   const [showReply, setShowReply] = useState(false);
 
-  // Per-variant approve state: { "A": "idle"|"approving"|"approved"|"error" }
+  // Per-variant approve state: { "A": { status: "idle"|"approving"|"approved"|"error", error: null|string } }
   const [variantState, setVariantState] = useState({});
-  const [approveError, setApproveError] = useState(null);
 
   const draftPanelRef = useRef(null);
 
@@ -234,19 +242,20 @@ export default function DraftViewer() {
   }, [loadProfile, loadDraft]);
 
   async function handleApproveVariant(approvedText, source, variantLabel) {
-    setVariantState((prev) => ({ ...prev, [variantLabel]: "approving" }));
-    setApproveError(null);
+    setVariantState((prev) => ({ ...prev, [variantLabel]: { status: "approving", error: null } }));
     try {
       await approveDraft(handle, {
         approved_output: approvedText,
         variant_label: variantLabel,
         source,
       });
-      setVariantState((prev) => ({ ...prev, [variantLabel]: "approved" }));
+      setVariantState((prev) => ({ ...prev, [variantLabel]: { status: "approved", error: null } }));
       setShowReply(true);
     } catch (err) {
-      setVariantState((prev) => ({ ...prev, [variantLabel]: "error" }));
-      setApproveError(err.message || "Error aprobando variante");
+      setVariantState((prev) => ({
+        ...prev,
+        [variantLabel]: { status: "error", error: err.message || "Error aprobando variante" },
+      }));
     }
   }
 
@@ -256,7 +265,7 @@ export default function DraftViewer() {
   const hooks = memory?.specific_hooks || [];
 
   const variantSections = (draft?.sections || []).filter((s) => extractVariantLabel(s.title));
-  const approvedCount = Object.values(variantState).filter((v) => v === "approved").length;
+  const approvedCount = Object.values(variantState).filter((v) => (v?.status || v) === "approved").length;
   const outreachStatus = dev?.outreach_status;
   const showReplyPanel = outreachStatus === "drafted" || outreachStatus === "sent" || showReply;
 
@@ -426,7 +435,6 @@ export default function DraftViewer() {
                   </button>
                 </div>
 
-                {approveError && <p className="topbar__error" style={{ marginTop: "0.5rem" }}>{approveError}</p>}
               </article>
 
               {(showReplyPanel) && (

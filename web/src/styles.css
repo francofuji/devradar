@@ -1709,13 +1709,15 @@ textarea:focus {
 }
 
 .thread-bubble--out {
-  background: color-mix(in srgb, var(--accent, #6366f1) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent, #6366f1) 30%, transparent);
+  background: var(--accent, #534AB7);
+  border: 1px solid var(--accent, #534AB7);
+  color: #fff;
 }
 
 .thread-bubble--in {
-  background: var(--surface-2, #1e2433);
+  background: var(--surface, #ffffff);
   border: 1px solid var(--border);
+  color: var(--text);
 }
 
 .thread-bubble__content {
@@ -1734,11 +1736,21 @@ textarea:focus {
 
 .thread-bubble__tag {
   font-size: 0.68rem;
-  color: var(--text-muted);
-  background: var(--surface-1, #161b27);
+  color: var(--muted);
+  background: var(--surface, #ffffff);
   border: 1px solid var(--border);
   border-radius: 3px;
   padding: 0.1rem 0.35rem;
+}
+
+.thread-bubble--out .thread-bubble__tag {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.thread-bubble--out .thread-bubble__time {
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .thread-bubble__time {

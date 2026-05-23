@@ -147,16 +147,18 @@ def _filter_hooks(hooks: list, narrative: str) -> list:
     if positive:
         return positive
     # Fallback: pull sentences from narrative that mention libraries/tools/decisions
+    # but are NOT absence-based themselves
     sentences = re.split(r"[.!?]", narrative)
     stack_sentences = []
     for s in sentences:
         s = s.strip()
         if (
             len(s) > 25
+            and not _is_absence_signal(s)
             and any(kw in s.lower() for kw in ["librar", "framework", "using", "built", "depend", "tool"])
         ):
             stack_sentences.append(s)
-    return stack_sentences[:2] or hooks  # absolute last resort: original hooks
+    return stack_sentences[:2] or []  # return empty rather than surfacing absence hooks
 
 
 def build_draft_prompt(entity_id: str, memory: dict, outreach_context: dict) -> tuple[str, str]:
@@ -173,10 +175,17 @@ def build_draft_prompt(entity_id: str, memory: dict, outreach_context: dict) -> 
     clean_narrative = _META_SENTENCE_PATTERNS.sub("", raw_narrative).strip()
     hooks = _filter_hooks(hooks_no_meta, clean_narrative)
 
-    # Prefer pain signals with positive evidence; fall back to all if none positive
+    # Prefer pain signals with positive evidence; drop all if none positive
+    # (absence-only signals drive the LLM toward "you're missing X" framing)
     all_pain = memory.get("confirmed_pain_signals", [])
     positive_pain = [p for p in all_pain if not _is_absence_signal(str(p.get("evidence", "")))]
-    pain_signals = positive_pain if positive_pain else all_pain
+    pain_signals = positive_pain  # empty list = no pain angle, rely on hooks instead
+
+    # When there are no positive pain signals, override recommended_angle to
+    # "stack_curiosity" so the LLM doesn't default to the absence-based angle
+    recommended_angle = outreach_context.get("recommended_angle")
+    if not positive_pain and recommended_angle:
+        recommended_angle = "stack_curiosity"
 
     vocabulary_to_avoid = outreach_context.get("vocabulary_to_avoid") or []
 
@@ -213,9 +222,9 @@ Return strict JSON only:
         {
             "entity_id": entity_id,
             "narrative": clean_narrative or None,
-            "recommended_angle": outreach_context.get("recommended_angle"),
+            "recommended_angle": recommended_angle,
             "specific_hooks": hooks[:4],
-            "pain_signals": pain_signals[:4],
+            "pain_signals": pain_signals[:4],  # empty when only absence signals exist
             "vocabulary_to_avoid": vocab_avoid_all,
         },
         ensure_ascii=True,

@@ -53,6 +53,9 @@ def _draft_path(handle: str) -> Path | None:
     return candidates[0] if candidates else None
 
 
+_OPERATOR_SECTIONS = {"Acciones del operador", "Notas del operador", "Intro"}
+
+
 def _parse_draft(path: Path) -> dict[str, Any]:
     content = path.read_text(encoding="utf-8")
     sections = []
@@ -67,7 +70,12 @@ def _parse_draft(path: Path) -> dict[str, Any]:
             continue
         current_lines.append(line)
     sections.append({"title": current_title, "content": "\n".join(current_lines).strip()})
-    return {"path": str(path), "content": content, "sections": [s for s in sections if s["content"]]}
+
+    editable = [
+        s for s in sections
+        if s["content"] and s["title"] not in _OPERATOR_SECTIONS
+    ]
+    return {"path": str(path), "content": content, "sections": editable}
 
 
 class DraftApprovalRequest(BaseModel):

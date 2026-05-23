@@ -381,3 +381,69 @@ def register_reply(handle: str, payload: ReplyRequest) -> dict[str, Any]:
         "outcome": payload.outcome,
     }
 
+
+@router.get("/{handle}/thread")
+def get_thread(handle: str) -> dict[str, Any]:
+    """Timeline de mensajes enviados y respuestas para un developer."""
+    if get_developer(handle) is None:
+        raise HTTPException(status_code=404, detail=f"Developer no encontrado: {handle}")
+
+    thread: list[dict] = []
+
+    # Approved drafts = messages sent
+    with db_cursor() as cur:
+        cur.execute(
+            """
+            SELECT approved_output, approved_at, variant_label, source, model_output
+            FROM fine_tuning_examples
+            WHERE entity_id = %s AND task_type = 'draft'
+              AND approved_at IS NOT NULL
+              AND approved_output IS NOT NULL
+              AND LENGTH(approved_output) > 5
+            ORDER BY approved_at ASC
+            """,
+            (handle,),
+        )
+        for row in cur.fetchall():
+            thread.append({
+                "type": "sent",
+                "direction": "out",
+                "content": row["approved_output"],
+                "occurred_at": row["approved_at"].isoformat() if row["approved_at"] else None,
+                "meta": {
+                    "variant_label": row.get("variant_label"),
+                    "source": row.get("source"),
+                    "was_edited": row["model_output"] != row["approved_output"],
+                },
+            })
+
+    # Reply events = developer responses / notes
+    with db_cursor() as cur:
+        cur.execute(
+            """
+            SELECT payload, occurred_at
+            FROM events
+            WHERE entity_id = %s
+              AND event_type = 'outreach.reply_received'
+            ORDER BY occurred_at ASC
+            """,
+            (handle,),
+        )
+        for row in cur.fetchall():
+            p = row["payload"] or {}
+            thread.append({
+                "type": "reply",
+                "direction": "in",
+                "content": p.get("notes", ""),
+                "occurred_at": row["occurred_at"].isoformat() if row["occurred_at"] else None,
+                "meta": {
+                    "outcome": p.get("outcome"),
+                    "channel": p.get("channel"),
+                },
+            })
+
+    # Sort by occurred_at
+    thread.sort(key=lambda x: x["occurred_at"] or "")
+
+    return {"entity_id": handle, "thread": thread}
+

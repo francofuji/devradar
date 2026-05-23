@@ -86,9 +86,14 @@ function ContactedCard({ item }) {
 
       <div className="outreach-card__footer">
         <span className="entity-card__age">{formatDaysAgo(item.last_active)}</span>
-        <Link to={`/outreach/${item.id}`} className="btn-secondary outreach-card__cta">
-          Ver perfil →
-        </Link>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <Link to={`/outreach/${item.id}/inbox`} className="btn-secondary outreach-card__cta">
+            Ver Inbox
+          </Link>
+          <Link to={`/outreach/${item.id}`} className="btn-secondary outreach-card__cta">
+            Ver perfil →
+          </Link>
+        </div>
       </div>
     </article>
   );

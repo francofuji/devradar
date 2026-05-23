@@ -8,6 +8,7 @@ const Entities = lazy(() => import("./pages/Entities"));
 const EntityProfile = lazy(() => import("./pages/EntityProfile"));
 const Outreach = lazy(() => import("./pages/Outreach"));
 const DraftViewer = lazy(() => import("./pages/DraftViewer"));
+const InboxViewer = lazy(() => import("./pages/InboxViewer"));
 const Digest = lazy(() => import("./pages/Digest"));
 const Alerts = lazy(() => import("./pages/Alerts"));
 const Trends = lazy(() => import("./pages/Trends"));
@@ -33,6 +34,7 @@ const router = createBrowserRouter([
       { path: "entities/:handle", element: withSuspense(<EntityProfile />) },
       { path: "outreach", element: withSuspense(<Outreach />) },
       { path: "outreach/:handle", element: withSuspense(<DraftViewer />) },
+      { path: "outreach/:handle/inbox", element: withSuspense(<InboxViewer />) },
       { path: "digest", element: withSuspense(<Digest />) },
       { path: "alerts", element: withSuspense(<Alerts />) },
       { path: "trends", element: withSuspense(<Trends />) },

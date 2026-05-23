@@ -401,7 +401,7 @@ def get_thread(handle: str) -> dict[str, Any]:
                 },
             })
 
-    # Reply events = developer responses / notes
+    # Manually registered sends (operator sent message via external channel)
     with db_cursor() as cur:
         cur.execute(
             """
@@ -416,8 +416,8 @@ def get_thread(handle: str) -> dict[str, Any]:
         for row in cur.fetchall():
             p = row["payload"] or {}
             thread.append({
-                "type": "reply",
-                "direction": "in",
+                "type": "sent_manual",
+                "direction": "out",
                 "content": p.get("notes", ""),
                 "occurred_at": row["occurred_at"].isoformat() if row["occurred_at"] else None,
                 "meta": {

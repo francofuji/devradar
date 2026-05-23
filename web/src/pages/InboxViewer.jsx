@@ -22,6 +22,8 @@ function formatTime(iso) {
 function SentBubble({ item }) {
   const src = item.meta?.source;
   const sourceLabel = src === "chatgpt" ? "ChatGPT" : src === "claude" ? "Claude" : src === "operator_edit" ? "Editado" : null;
+  const channel = item.meta?.channel;
+  const outcome = item.meta?.outcome;
 
   return (
     <div className="thread-item thread-item--out">
@@ -33,6 +35,12 @@ function SentBubble({ item }) {
           )}
           {sourceLabel && (
             <span className="thread-bubble__tag">{sourceLabel}</span>
+          )}
+          {channel && <span className="thread-bubble__tag">{channel}</span>}
+          {outcome && (
+            <Badge tone={OUTCOME_TONE[outcome] || "gray"}>
+              {OUTCOME_LABEL[outcome] || outcome}
+            </Badge>
           )}
           <span className="thread-bubble__time">{formatTime(item.occurred_at)}</span>
         </div>
@@ -184,7 +192,7 @@ export default function InboxViewer() {
               <p className="panel__eyebrow">Conversación</p>
               <div className="thread-list">
                 {deduped.map((item, i) =>
-                  item.type === "sent"
+                  item.direction === "out"
                     ? <SentBubble key={i} item={item} />
                     : <ReplyBubble key={i} item={item} devHandle={handle} />
                 )}

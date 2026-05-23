@@ -20,7 +20,22 @@ from db.queries import get_developer
 from enrichment.llm_client import call_llm
 from fine_tuning.capture import capture_example
 
-DRAFT_MODEL = "claude-sonnet-4-6"
+def _load_draft_model() -> tuple[str, str]:
+    """Return (model_name, provider) from config.toml."""
+    try:
+        import tomllib
+    except ImportError:
+        import tomli as tomllib  # type: ignore
+    config_path = Path(_project_root) / "config.toml"
+    with open(config_path, "rb") as f:
+        cfg = tomllib.load(f)
+    llm = cfg.get("llm", {})
+    provider = llm.get("provider", "ollama")
+    if provider == "anthropic":
+        model = llm.get("anthropic_model_draft", "claude-sonnet-4-6")
+    else:
+        model = llm.get("ollama_model_draft", "llama3.2:3b")
+    return model, provider
 
 
 def _provider_from_model(model_name: str | None) -> str | None:
@@ -66,38 +81,47 @@ def _build_fallback_variants(entity_id: str, memory: dict, outreach_context: dic
         {
             "label": "Fallback A",
             "message": (
-                f"Spent a bit of time on your repo and noticed {first_hook}. "
-                f"I work on infra around {angle}, and I think there may be a useful shortcut here. "
-                f"If helpful, I can send a concrete idea after reading the same evidence you already surfaced."
+                f"Looked through {entity_id}'s work — {narrative[:120].rstrip()}. "
+                f"Working on something adjacent and had a question about your approach. "
+                f"Would it be useful to compare notes?"
             ),
-            "evidence_used": [first_hook],
+            "evidence_used": [narrative[:120]],
         },
         {
             "label": "Fallback B",
             "message": (
-                f"Read through your latest context and the part that stood out was {second_hook}. "
-                f"I build for teams hitting this kind of {angle} issue and can share one concrete approach. "
-                f"Happy to send it if you're actively revisiting that area."
+                f"Came across {entity_id}'s repo while exploring the {angle.replace('_', ' ')} space. "
+                f"The direction looks interesting — are you running into any friction with the current setup?"
             ),
-            "evidence_used": [second_hook, narrative],
+            "evidence_used": [f"Project angle: {angle}"],
         },
     ]
     return variants
 
 
 def _generate_llm_variants(entity_id: str, memory: dict, outreach_context: dict) -> tuple[list[dict], str | None]:
-    hooks = outreach_context.get("specific_hooks") or memory.get("specific_hooks") or []
+    raw_hooks = outreach_context.get("specific_hooks") or memory.get("specific_hooks") or []
+    # Filter out internal metadata strings before passing to LLM
+    _meta_patterns = re.compile(
+        r"(dependencies detected|push recorded|enrichment ran|last push|"
+        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}|signal_type|category:|intent_score)",
+        re.IGNORECASE,
+    )
+    hooks = [h for h in raw_hooks if not _meta_patterns.search(str(h))]
     pain_signals = memory.get("confirmed_pain_signals", [])
     vocabulary_to_avoid = outreach_context.get("vocabulary_to_avoid") or []
 
     system_prompt = """You are writing a cold outreach message from one technical founder to another.
 Use the provided context to write two message variants.
+
 Rules:
-(1) Each variant must reference ONE specific, verifiable observation — not a generic claim.
-(2) Maximum 3 sentences per variant.
+(1) Reference ONE specific, verifiable observation from their actual project — a design decision, a library choice, an architectural pattern, a problem they're visibly solving. Never copy internal metadata strings like "dependencies detected" or field names.
+(2) Maximum 3 sentences per variant. Under 50 words total.
 (3) Do not use these words: {vocabulary_to_avoid}.
-(4) Write as a technical peer, not a salesperson.
-(5) The recipient should feel you actually looked at their work.
+(4) Write as a technical peer who genuinely read the repo, not a salesperson.
+(5) No links, no pitching, no attachments. End with a single open question or concrete offer.
+(6) The evidence_used field must contain a human-readable sentence explaining what you observed, not raw metadata.
+
 Return strict JSON only:
 {"variants":[{"label":"A","message":"string","evidence_used":["string"]},{"label":"B","message":"string","evidence_used":["string"]}]}"""
 
@@ -113,26 +137,39 @@ Return strict JSON only:
         ensure_ascii=True,
     )
 
+    draft_model, _ = _load_draft_model()
     try:
         llm_result = call_llm(
             prompt,
             system_prompt.replace("{vocabulary_to_avoid}", ", ".join(vocabulary_to_avoid)),
-            model=DRAFT_MODEL,
+            model=draft_model,
             max_tokens=700,
             entity_id=entity_id,
             enrichment_type="outreach_draft",
         )
-        parsed = json.loads(llm_result["text"])
+        raw = llm_result["text"].strip()
+        # Strip markdown code fences if present
+        if raw.startswith("```"):
+            raw = re.sub(r"^```[a-z]*\n?", "", raw)
+            raw = re.sub(r"\n?```$", "", raw.strip())
+        # Extract first JSON object if surrounded by prose
+        match = re.search(r"\{.*\}", raw, re.DOTALL)
+        raw = match.group(0) if match else raw
+        parsed = json.loads(raw)
         variants = parsed.get("variants") or []
         clean = []
         for item in variants[:2]:
             message = _sanitize_variant(str(item.get("message", "")), vocabulary_to_avoid)
             if not message:
                 continue
+            # evidence_used may be a string or a list depending on the model
+            raw_evidence = item.get("evidence_used") or []
+            if isinstance(raw_evidence, str):
+                raw_evidence = [raw_evidence]
             clean.append({
                 "label": str(item.get("label", "Variant")).strip(),
                 "message": message,
-                "evidence_used": [str(x) for x in (item.get("evidence_used") or []) if str(x).strip()],
+                "evidence_used": [str(x) for x in raw_evidence if str(x).strip()],
             })
         if len(clean) >= 2:
             for item in clean[:2]:

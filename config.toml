@@ -7,7 +7,7 @@ max_stars = 5000
 created_after = "2024-01-01"
 
 [scoring]
-qualified_threshold = 75
+qualified_threshold = 50
 warm_threshold = 50
 monitor_threshold = 20
 reactivation_multiplier = 0.75
@@ -29,8 +29,6 @@ ollama_base_url = "http://ollama:11434"
 ollama_model_extraction = "llama3.2:3b"
 ollama_model_narrative = "llama3.2:3b"
 ollama_model_draft = "llama3.2:3b"
-# llama3.1:8b requiere ~4.8 GiB — no cabe en esta máquina (7.7 GiB total, ~4.0 libre)
-# Para habilitar: hacer upgrade de RAM a ≥10 GiB y cambiar los valores arriba
 anthropic_model_extraction = "claude-haiku-4-5-20251001"
 anthropic_model_narrative = "claude-sonnet-4-6"
 anthropic_model_draft = "claude-sonnet-4-6"

@@ -361,7 +361,7 @@ export default function DraftViewer() {
                       onClick={handleApprove}
                       disabled={approving}
                     >
-                      {approving ? "Aprobando…" : "Aprobar draft"}
+                      {approving ? "Aprobando…" : "Aprobar draft para fine-tuning"}
                     </button>
                   </div>
                 )}

@@ -5,11 +5,11 @@ export function fetchOutreachQueue() {
 }
 
 export function fetchDraft(handle) {
-  return get(`/api/outreach/${handle}/draft`);
+  return get(`/api/outreach/${handle}/draft`, { timeout: 120000 });
 }
 
 export function regenerateDraft(handle) {
-  return post(`/api/outreach/${handle}/draft/regenerate`, {});
+  return post(`/api/outreach/${handle}/draft/regenerate`, {}, { timeout: 120000 });
 }
 
 export function approveDraft(handle, payload) {

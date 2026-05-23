@@ -30,6 +30,31 @@ from intelligence.score_entities import get_temporal_multiplier
 logger = logging.getLogger("intelligence.detect_transitions")
 
 
+def _load_thresholds() -> dict:
+    try:
+        try:
+            import tomllib
+        except ImportError:
+            import tomli as tomllib  # type: ignore
+        config_path = os.path.join(_project_root, "config.toml")
+        with open(config_path, "rb") as f:
+            cfg = tomllib.load(f)
+        s = cfg.get("scoring", {})
+        return {
+            "warm_intent": float(s.get("warm_intent_threshold", 40)),
+            "qualified_intent": float(s.get("qualified_intent_threshold", 55)),
+            "qualified_maturity": float(s.get("qualified_maturity_threshold", 25)),
+            "qualified_temporal": float(s.get("qualified_temporal_min", 1.0)),
+        }
+    except Exception:
+        return {
+            "warm_intent": 40.0,
+            "qualified_intent": 55.0,
+            "qualified_maturity": 25.0,
+            "qualified_temporal": 1.0,
+        }
+
+
 def _emit_transition_event(entity_id: str, from_status: str, to_status: str, payload: dict) -> str | None:
     event_payload = {
         "from_status": from_status,
@@ -78,6 +103,7 @@ def evaluate_state_machine(entity_id: str) -> dict | None:
     temporal_multiplier = get_temporal_multiplier(entity_id)
     total_signal_score = _total_active_signal_score(entity_id)
 
+    thresholds = _load_thresholds()
     target_status = None
     reason = None
 
@@ -91,18 +117,22 @@ def evaluate_state_machine(entity_id: str) -> dict | None:
     elif current_status == DeveloperStatus.PROFILED.value and total_signal_score > 0:
         target_status = DeveloperStatus.MONITORED.value
         reason = f"active signal score > 0 ({total_signal_score})"
-    elif current_status == DeveloperStatus.MONITORED.value and intent_score >= 50:
+    elif (
+        current_status == DeveloperStatus.MONITORED.value
+        and intent_score >= thresholds["warm_intent"]
+    ):
         target_status = DeveloperStatus.WARM.value
-        reason = f"intent_score >= 50 ({intent_score})"
+        reason = f"intent_score >= {thresholds['warm_intent']} ({intent_score})"
     elif (
         current_status == DeveloperStatus.WARM.value
-        and intent_score >= 75
-        and maturity_tier in {MaturityTier.INTERMEDIATE, MaturityTier.PRODUCTION, MaturityTier.SCALE_READY}
-        and temporal_multiplier >= 1.5
+        and intent_score >= thresholds["qualified_intent"]
+        and maturity_score >= thresholds["qualified_maturity"]
+        and temporal_multiplier >= thresholds["qualified_temporal"]
     ):
         target_status = DeveloperStatus.QUALIFIED.value
         reason = (
-            f"intent_score={intent_score}, maturity={maturity_tier.value}, "
+            f"intent_score={intent_score}, maturity={maturity_score} "
+            f"(threshold={thresholds['qualified_maturity']}), "
             f"temporal_multiplier={temporal_multiplier}"
         )
 

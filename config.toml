@@ -11,6 +11,10 @@ qualified_threshold = 50
 warm_threshold = 50
 monitor_threshold = 20
 reactivation_multiplier = 0.75
+warm_intent_threshold = 30
+qualified_intent_threshold = 55
+qualified_maturity_threshold = 25
+qualified_temporal_min = 1.0
 [scoring.half_life_days]
 product_launch = 2
 tool_comparison = 3

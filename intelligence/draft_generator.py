@@ -130,6 +130,33 @@ _META_SENTENCE_PATTERNS = re.compile(
     r")[^.!?]*[.!?]?",
     re.IGNORECASE,
 )
+# Absence-based hooks are weak outreach angles ("No X detected", "lacks Y", etc.)
+_ABSENCE_PATTERNS = re.compile(
+    r"\b(no |not detected|absent|missing|lacks?|without|none detected|appear to lack)\b",
+    re.IGNORECASE,
+)
+
+
+def _is_absence_signal(text: str) -> bool:
+    return bool(_ABSENCE_PATTERNS.search(str(text)))
+
+
+def _filter_hooks(hooks: list, narrative: str) -> list:
+    """Return positive hooks only. If none exist, extract from narrative as fallback."""
+    positive = [h for h in hooks if not _is_absence_signal(str(h))]
+    if positive:
+        return positive
+    # Fallback: pull sentences from narrative that mention libraries/tools/decisions
+    sentences = re.split(r"[.!?]", narrative)
+    stack_sentences = []
+    for s in sentences:
+        s = s.strip()
+        if (
+            len(s) > 25
+            and any(kw in s.lower() for kw in ["librar", "framework", "using", "built", "depend", "tool"])
+        ):
+            stack_sentences.append(s)
+    return stack_sentences[:2] or hooks  # absolute last resort: original hooks
 
 
 def build_draft_prompt(entity_id: str, memory: dict, outreach_context: dict) -> tuple[str, str]:
@@ -139,8 +166,18 @@ def build_draft_prompt(entity_id: str, memory: dict, outreach_context: dict) -> 
     (to copy-paste into ChatGPT / Claude.ai / etc.) without calling the LLM.
     """
     raw_hooks = outreach_context.get("specific_hooks") or memory.get("specific_hooks") or []
-    hooks = [h for h in raw_hooks if not _META_PATTERNS.search(str(h))]
-    pain_signals = memory.get("confirmed_pain_signals", [])
+    hooks_no_meta = [h for h in raw_hooks if not _META_PATTERNS.search(str(h))]
+
+    # Filter absence-based hooks ("No X detected") — bad outreach angles
+    raw_narrative = memory.get("narrative") or memory.get("_summary") or ""
+    clean_narrative = _META_SENTENCE_PATTERNS.sub("", raw_narrative).strip()
+    hooks = _filter_hooks(hooks_no_meta, clean_narrative)
+
+    # Prefer pain signals with positive evidence; fall back to all if none positive
+    all_pain = memory.get("confirmed_pain_signals", [])
+    positive_pain = [p for p in all_pain if not _is_absence_signal(str(p.get("evidence", "")))]
+    pain_signals = positive_pain if positive_pain else all_pain
+
     vocabulary_to_avoid = outreach_context.get("vocabulary_to_avoid") or []
 
     product = _load_product_context()
@@ -162,7 +199,7 @@ Important: weave the product naturally into ONE of the two variants only if ther
 Use the provided context to write two message variants.
 {product_block}
 Rules:
-(1) Reference ONE specific, verifiable observation from their actual project — a design decision, a library choice, an architectural pattern, a problem they're visibly solving. Never copy internal metadata strings like "dependencies detected" or field names.
+(1) Reference ONE specific, verifiable thing they ARE doing — a library they chose, a design decision, an architectural pattern, a problem they're visibly solving. NEVER mention what is absent, missing, or not present in their stack. Absence is not a hook.
 (2) Maximum 3 sentences per variant. Under 50 words total.
 (3) Do not use these words: {", ".join(vocab_avoid_all) or "none"}.
 (4) Write as a technical peer who genuinely read the repo, not a salesperson.
@@ -171,9 +208,6 @@ Rules:
 
 Return strict JSON only:
 {{"variants":[{{"label":"A","message":"string","evidence_used":["string"]}},{{"label":"B","message":"string","evidence_used":["string"]}}]}}"""
-
-    raw_narrative = memory.get("narrative") or memory.get("_summary") or ""
-    clean_narrative = _META_SENTENCE_PATTERNS.sub("", raw_narrative).strip()
 
     user_prompt = json.dumps(
         {

@@ -127,11 +127,46 @@ def _emit_stack_signals(developer_id: str, stack: StackSnapshot) -> None:
     if stack.has_automation():
         emit_signal(
             entity_id=developer_id,
-            category="activity",
+            category="evaluation",
             signal_type="browser_automation_runtime",
             base_score=18.0,
-            half_life_days=5.0,
+            half_life_days=14.0,
             evidence=f"Automation libs: {stack.runtime_deps.get('browser_automation', [])[:3]}",
+        )
+
+    email_libs = stack.runtime_deps.get("email", [])
+    if email_libs:
+        emit_signal(
+            entity_id=developer_id,
+            category="budget",
+            signal_type="email_provider_detected",
+            base_score=15.0,
+            half_life_days=14.0,
+            evidence=f"Email library in deps: {email_libs[:3]}",
+        )
+
+    email_testing_libs = [
+        lib for lib in email_libs
+        if any(t in lib.lower() for t in ["mailtrap", "mailhog", "mock", "ethereal"])
+    ]
+    if email_testing_libs:
+        emit_signal(
+            entity_id=developer_id,
+            category="evaluation",
+            signal_type="email_testing_detected",
+            base_score=20.0,
+            half_life_days=30.0,
+            evidence=f"Email testing tool detected: {email_testing_libs}",
+        )
+
+    if stack.has_automation() and email_libs:
+        emit_signal(
+            entity_id=developer_id,
+            category="evaluation",
+            signal_type="browser_plus_email",
+            base_score=25.0,
+            half_life_days=14.0,
+            evidence="Browser automation + email library — likely testing full verification flows",
         )
 
 

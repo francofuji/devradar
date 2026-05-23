@@ -306,6 +306,51 @@ export default function DraftViewer() {
             )}
           </article>
 
+          {/* Contact box */}
+          <article className="panel">
+            <p className="panel__eyebrow">Contacto</p>
+            {dev?.avatar_url && (
+              <img
+                src={dev.avatar_url}
+                alt={handle}
+                style={{ width: 48, height: 48, borderRadius: "50%", marginBottom: "0.5rem" }}
+              />
+            )}
+            {dev?.bio && (
+              <p className="panel__copy" style={{ fontSize: "0.78rem", marginBottom: "0.5rem", fontStyle: "italic" }}>
+                {dev.bio}
+              </p>
+            )}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", fontSize: "0.8rem" }}>
+              {dev?.location && (
+                <span>📍 {dev.location}</span>
+              )}
+              {dev?.github_url && (
+                <a href={dev.github_url} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)" }}>
+                  GitHub: @{handle}
+                </a>
+              )}
+              {dev?.email && (
+                <a href={`mailto:${dev.email}`} style={{ color: "var(--accent)" }}>
+                  ✉ {dev.email}
+                </a>
+              )}
+              {dev?.twitter && (
+                <a href={`https://twitter.com/${dev.twitter}`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)" }}>
+                  𝕏 @{dev.twitter}
+                </a>
+              )}
+              {dev?.personal_site && (
+                <a href={dev.personal_site.startsWith("http") ? dev.personal_site : `https://${dev.personal_site}`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)" }}>
+                  🌐 {dev.personal_site}
+                </a>
+              )}
+              {!dev?.email && !dev?.twitter && !dev?.personal_site && (
+                <span style={{ color: "var(--text-muted)", fontSize: "0.75rem" }}>Sin datos de contacto — regenera el enriquecimiento</span>
+              )}
+            </div>
+          </article>
+
           {memory?.summary && (
             <article className="panel">
               <p className="panel__eyebrow">Narrative</p>

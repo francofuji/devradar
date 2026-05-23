@@ -228,6 +228,30 @@ def run_full_enrichment(entity_id: str, github_client=None) -> EnrichmentResult:
         from github_client import GitHubClient
         github_client = GitHubClient()
 
+    # ── Step 0.5: Fetch GitHub user profile (contact info) ────────
+    try:
+        gh_user = github_client._gh.get_user(developer_id)
+        contact_fields = {}
+        if gh_user.name:
+            contact_fields["name"] = gh_user.name
+        if gh_user.email:
+            contact_fields["email"] = gh_user.email
+        if gh_user.twitter_username:
+            contact_fields["twitter"] = gh_user.twitter_username
+        if gh_user.blog:
+            contact_fields["personal_site"] = gh_user.blog
+        if gh_user.avatar_url:
+            contact_fields["avatar_url"] = gh_user.avatar_url
+        if gh_user.location:
+            contact_fields["location"] = gh_user.location
+        if gh_user.bio:
+            contact_fields["bio"] = gh_user.bio[:500]
+        if contact_fields:
+            update_developer_profile_fields(developer_id, **contact_fields)
+            logger.info(f"Contact fields updated: {list(contact_fields.keys())}")
+    except Exception as e:
+        logger.warning(f"Could not fetch GitHub user profile for {developer_id}: {e}")
+
     # ── Step 1: Get developer repos (DB first, GitHub fallback) ──
     db_repos = get_repos_by_owner(developer_id)
 

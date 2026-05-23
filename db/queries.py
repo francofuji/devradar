@@ -76,6 +76,14 @@ def update_developer_profile_fields(
     outreach_status: str | None = None,
     status: str | None = None,
     last_active: str | None = None,
+    # Contact / GitHub profile fields
+    name: str | None = None,
+    email: str | None = None,
+    twitter: str | None = None,
+    personal_site: str | None = None,
+    avatar_url: str | None = None,
+    location: str | None = None,
+    bio: str | None = None,
 ) -> None:
     now = datetime.now(timezone.utc).isoformat()
     assignments: list[str] = ["updated_at = %s"]
@@ -93,6 +101,12 @@ def update_developer_profile_fields(
     if last_active is not None:
         assignments.append("last_active = %s")
         params.append(last_active)
+    for field, val in [("name", name), ("email", email), ("twitter", twitter),
+                       ("personal_site", personal_site), ("avatar_url", avatar_url),
+                       ("location", location), ("bio", bio)]:
+        if val is not None:
+            assignments.append(f"{field} = %s")
+            params.append(val)
 
     params.append(entity_id)
 

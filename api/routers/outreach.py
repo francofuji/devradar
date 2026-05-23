@@ -149,6 +149,24 @@ def get_or_generate_draft(handle: str) -> dict[str, Any]:
     return payload
 
 
+@router.post("/{handle}/draft/regenerate")
+def regenerate_draft(handle: str) -> dict[str, Any]:
+    if get_developer(handle) is None:
+        raise HTTPException(status_code=404, detail=f"Developer no encontrado: {handle}")
+    # Delete existing draft files so generator creates a fresh one
+    if OUTPUT_DIR.exists():
+        for old in OUTPUT_DIR.glob(f"{handle}_*.md"):
+            old.unlink()
+    try:
+        path = Path(generate_outreach_draft(handle))
+        update_developer_profile_fields(handle, outreach_status="drafted", last_active=_now_iso())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    payload = _parse_draft(path)
+    payload["generated"] = True
+    return payload
+
+
 @router.post("/{handle}/draft/approve")
 def approve_draft(handle: str, payload: DraftApprovalRequest) -> dict[str, Any]:
     if get_developer(handle) is None:

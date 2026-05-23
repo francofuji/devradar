@@ -8,6 +8,10 @@ export function fetchDraft(handle) {
   return get(`/api/outreach/${handle}/draft`);
 }
 
+export function regenerateDraft(handle) {
+  return post(`/api/outreach/${handle}/draft/regenerate`, {});
+}
+
 export function approveDraft(handle, payload) {
   return post(`/api/outreach/${handle}/draft/approve`, payload);
 }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchEntity } from "../api/entities";
-import { approveDraft, fetchDraft, registerReply } from "../api/outreach";
+import { approveDraft, fetchDraft, regenerateDraft, registerReply } from "../api/outreach";
 import Badge from "../components/ui/Badge";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import PainSignal from "../components/ui/PainSignal";
@@ -105,6 +105,7 @@ export default function DraftViewer() {
 
   const [edits, setEdits] = useState({});
   const [channel, setChannel] = useState("LinkedIn");
+  const [regenerating, setRegenerating] = useState(false);
   const [approving, setApproving] = useState(false);
   const [approveError, setApproveError] = useState(null);
   const [approved, setApproved] = useState(false);
@@ -320,9 +321,26 @@ export default function DraftViewer() {
                     </button>
                     <button
                       className="btn-secondary"
-                      onClick={loadDraft}
+                      disabled={regenerating}
+                      onClick={async () => {
+                        setRegenerating(true);
+                        setDraftError(null);
+                        try {
+                          const data = await regenerateDraft(handle);
+                          setDraft(data);
+                          const initial = {};
+                          for (const s of data.sections || []) {
+                            initial[s.title] = s.content;
+                          }
+                          setEdits(initial);
+                        } catch (err) {
+                          setDraftError(err.message || "Error regenerating draft");
+                        } finally {
+                          setRegenerating(false);
+                        }
+                      }}
                     >
-                      Regenerar
+                      {regenerating ? "Generando…" : "Regenerar"}
                     </button>
                     <button
                       className="btn-primary"

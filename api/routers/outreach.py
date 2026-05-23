@@ -77,6 +77,13 @@ class ReplyRequest(BaseModel):
     notes: str = Field(min_length=1)
 
 
+class InboxMessageRequest(BaseModel):
+    direction: str = Field(pattern="^(out|in)$")
+    content: str = Field(min_length=1)
+    channel: str = Field(default="unknown", pattern="^(LinkedIn|Twitter|Email|GitHub|unknown)$")
+    outcome: str | None = Field(default=None, pattern="^(positive|negative|neutral)$")
+
+
 @router.get("/contacted")
 def outreach_contacted(limit: int = 50) -> dict[str, Any]:
     """Developers que ya recibieron outreach (outreach_status != 'none')."""
@@ -366,6 +373,60 @@ def register_reply(handle: str, payload: ReplyRequest) -> dict[str, Any]:
     }
 
 
+@router.post("/{handle}/message")
+def register_inbox_message(handle: str, payload: InboxMessageRequest) -> dict[str, Any]:
+    """Registra un mensaje enviado por el operador o una respuesta del developer."""
+    if get_developer(handle) is None:
+        raise HTTPException(status_code=404, detail=f"Developer no encontrado: {handle}")
+
+    if payload.direction == "out":
+        # Operator sent a message via external channel
+        event_id = emit_event(
+            "outreach.message_sent",
+            handle,
+            "developer",
+            {"content": payload.content, "channel": payload.channel},
+            source="api",
+            source_url=f"api://outreach/{handle}/message/{_now_iso()}",
+        )
+        # Mark as sent if not already further along
+        with db_cursor() as cur:
+            cur.execute(
+                "SELECT outreach_status FROM developers WHERE id = %s",
+                (handle,),
+            )
+            row = cur.fetchone()
+        current_status = row["outreach_status"] if row else "none"
+        if current_status in ("none", "drafted"):
+            update_developer_profile_fields(handle, outreach_status="sent", last_active=_now_iso())
+        else:
+            update_developer_profile_fields(handle, last_active=_now_iso())
+    else:
+        # Developer replied
+        event_id = emit_event(
+            "outreach.reply_received",
+            handle,
+            "developer",
+            {
+                "direction": "in",
+                "content": payload.content,
+                "channel": payload.channel,
+                "outcome": payload.outcome,
+            },
+            source="api",
+            source_url=f"api://outreach/{handle}/message/{_now_iso()}",
+        )
+        new_dev_status = "ENGAGED" if payload.outcome == "positive" else None
+        update_developer_profile_fields(
+            handle,
+            outreach_status="replied",
+            status=new_dev_status,
+            last_active=_now_iso(),
+        )
+
+    return {"ok": True, "event_id": event_id, "entity_id": handle, "direction": payload.direction}
+
+
 @router.get("/{handle}/thread")
 def get_thread(handle: str) -> dict[str, Any]:
     """Timeline de mensajes enviados y respuestas para un developer."""
@@ -374,7 +435,7 @@ def get_thread(handle: str) -> dict[str, Any]:
 
     thread: list[dict] = []
 
-    # Approved drafts = messages sent
+    # Approved drafts = messages sent via the approve flow
     with db_cursor() as cur:
         cur.execute(
             """
@@ -401,14 +462,13 @@ def get_thread(handle: str) -> dict[str, Any]:
                 },
             })
 
-    # Manually registered sends (operator sent message via external channel)
+    # outreach.message_sent events (operator sent via external channel, new endpoint)
     with db_cursor() as cur:
         cur.execute(
             """
             SELECT payload, occurred_at
             FROM events
-            WHERE entity_id = %s
-              AND event_type = 'outreach.reply_received'
+            WHERE entity_id = %s AND event_type = 'outreach.message_sent'
             ORDER BY occurred_at ASC
             """,
             (handle,),
@@ -418,13 +478,51 @@ def get_thread(handle: str) -> dict[str, Any]:
             thread.append({
                 "type": "sent_manual",
                 "direction": "out",
-                "content": p.get("notes", ""),
+                "content": p.get("content", ""),
                 "occurred_at": row["occurred_at"].isoformat() if row["occurred_at"] else None,
-                "meta": {
-                    "outcome": p.get("outcome"),
-                    "channel": p.get("channel"),
-                },
+                "meta": {"channel": p.get("channel")},
             })
+
+    # outreach.reply_received events — two cases:
+    #   legacy (no "direction" field): old operator sends → direction "out"
+    #   new (direction="in"): actual developer reply → direction "in"
+    with db_cursor() as cur:
+        cur.execute(
+            """
+            SELECT payload, occurred_at
+            FROM events
+            WHERE entity_id = %s AND event_type = 'outreach.reply_received'
+            ORDER BY occurred_at ASC
+            """,
+            (handle,),
+        )
+        for row in cur.fetchall():
+            p = row["payload"] or {}
+            is_dev_reply = p.get("direction") == "in"
+            content = p.get("content") or p.get("notes", "")
+            if is_dev_reply:
+                thread.append({
+                    "type": "dev_reply",
+                    "direction": "in",
+                    "content": content,
+                    "occurred_at": row["occurred_at"].isoformat() if row["occurred_at"] else None,
+                    "meta": {
+                        "outcome": p.get("outcome"),
+                        "channel": p.get("channel"),
+                    },
+                })
+            else:
+                # Legacy: operator sent message, stored before new endpoint existed
+                thread.append({
+                    "type": "sent_manual",
+                    "direction": "out",
+                    "content": content,
+                    "occurred_at": row["occurred_at"].isoformat() if row["occurred_at"] else None,
+                    "meta": {
+                        "outcome": p.get("outcome"),
+                        "channel": p.get("channel"),
+                    },
+                })
 
     # Sort by occurred_at
     thread.sort(key=lambda x: x["occurred_at"] or "")

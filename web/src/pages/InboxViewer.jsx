@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { fetchEntity } from "../api/entities";
-import { fetchThread } from "../api/outreach";
+import { fetchThread, registerMessage } from "../api/outreach";
 import Badge from "../components/ui/Badge";
 import LoadingSpinner from "../components/ui/LoadingSpinner";
 import PageFrame from "./PageFrame";
@@ -9,6 +9,7 @@ import { formatArchetype } from "../utils/formatters";
 
 const OUTCOME_TONE = { positive: "green", neutral: "amber", negative: "red" };
 const OUTCOME_LABEL = { positive: "Positivo", neutral: "Neutral", negative: "Negativo" };
+const CHANNELS = ["LinkedIn", "Twitter", "Email", "GitHub"];
 
 function formatTime(iso) {
   if (!iso) return "";
@@ -70,6 +71,93 @@ function ReplyBubble({ item, devHandle }) {
         </div>
       </div>
     </div>
+  );
+}
+
+function MessageForm({ handle, onSaved }) {
+  const [direction, setDirection] = useState("out");
+  const [channel, setChannel] = useState("LinkedIn");
+  const [content, setContent] = useState("");
+  const [outcome, setOutcome] = useState("positive");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!content.trim()) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await registerMessage(handle, {
+        direction,
+        content: content.trim(),
+        channel,
+        outcome: direction === "in" ? outcome : undefined,
+      });
+      setContent("");
+      setDirection("out");
+      onSaved();
+    } catch (err) {
+      setError(err.message || "Error registrando mensaje");
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form className="reply-form" onSubmit={handleSubmit} style={{ marginTop: "1.5rem", borderTop: "1px dashed var(--border)", paddingTop: "1rem" }}>
+      <p className="panel__eyebrow" style={{ marginBottom: "0.5rem" }}>Registrar mensaje</p>
+
+      {/* Direction toggle */}
+      <div className="reply-form__outcomes" style={{ marginBottom: "0.5rem" }}>
+        {[
+          { value: "out", label: "Yo envié" },
+          { value: "in", label: "Dev respondió" },
+        ].map(({ value, label }) => (
+          <label key={value} className={`reply-outcome ${direction === value ? "reply-outcome--active" : ""}`}>
+            <input type="radio" name="direction" value={value} checked={direction === value} onChange={() => setDirection(value)} />
+            {label}
+          </label>
+        ))}
+      </div>
+
+      {/* Channel */}
+      <select
+        className="entities-select"
+        value={channel}
+        onChange={(e) => setChannel(e.target.value)}
+        style={{ marginBottom: "0.5rem" }}
+      >
+        {CHANNELS.map((c) => <option key={c} value={c}>{c}</option>)}
+      </select>
+
+      {/* Message content */}
+      <textarea
+        className="modal-textarea"
+        placeholder={direction === "out" ? "Texto del mensaje enviado…" : "Texto de la respuesta del developer…"}
+        rows={3}
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        required
+      />
+
+      {/* Outcome — only for dev replies */}
+      {direction === "in" && (
+        <div className="reply-form__outcomes" style={{ marginTop: "0.4rem" }}>
+          {["positive", "neutral", "negative"].map((o) => (
+            <label key={o} className={`reply-outcome ${outcome === o ? "reply-outcome--active" : ""}`}>
+              <input type="radio" name="outcome" value={o} checked={outcome === o} onChange={() => setOutcome(o)} />
+              {OUTCOME_LABEL[o]}
+            </label>
+          ))}
+        </div>
+      )}
+
+      {error && <p className="topbar__error" style={{ marginTop: "0.4rem" }}>{error}</p>}
+
+      <button type="submit" className="btn-primary" disabled={saving || !content.trim()} style={{ marginTop: "0.6rem" }}>
+        {saving ? "Guardando…" : "Registrar"}
+      </button>
+    </form>
   );
 }
 
@@ -173,30 +261,29 @@ export default function InboxViewer() {
           </div>
         </aside>
 
-        {/* Right: thread */}
+        {/* Right: thread + form */}
         <div className="draft-main">
           {isLoading ? (
             <article className="panel"><LoadingSpinner label="Cargando conversación…" /></article>
           ) : error ? (
             <article className="panel"><p className="topbar__error">{error}</p></article>
-          ) : deduped.length === 0 ? (
-            <article className="panel">
-              <p className="panel__eyebrow">Inbox vacío</p>
-              <p className="panel__copy">Aún no hay mensajes enviados ni respuestas registradas para este developer.</p>
-              <Link to={`/outreach/${handle}`} className="btn-primary" style={{ marginTop: "1rem", display: "inline-block" }}>
-                Ir al draft →
-              </Link>
-            </article>
           ) : (
             <article className="panel">
               <p className="panel__eyebrow">Conversación</p>
-              <div className="thread-list">
-                {deduped.map((item, i) =>
-                  item.direction === "out"
-                    ? <SentBubble key={i} item={item} />
-                    : <ReplyBubble key={i} item={item} devHandle={handle} />
-                )}
-              </div>
+              {deduped.length === 0 ? (
+                <p className="panel__copy" style={{ color: "var(--muted)", fontSize: "0.82rem" }}>
+                  Aún no hay mensajes. Usa el formulario de abajo para registrar el primer contacto.
+                </p>
+              ) : (
+                <div className="thread-list">
+                  {deduped.map((item, i) =>
+                    item.direction === "out"
+                      ? <SentBubble key={i} item={item} />
+                      : <ReplyBubble key={i} item={item} devHandle={handle} />
+                  )}
+                </div>
+              )}
+              <MessageForm handle={handle} onSaved={load} />
             </article>
           )}
         </div>

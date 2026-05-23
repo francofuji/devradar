@@ -31,3 +31,7 @@ export function fetchDraftPrompt(handle) {
 export function fetchThread(handle) {
   return get(`/api/outreach/${handle}/thread`);
 }
+
+export function registerMessage(handle, payload) {
+  return post(`/api/outreach/${handle}/message`, payload);
+}

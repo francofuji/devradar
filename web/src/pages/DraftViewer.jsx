@@ -10,36 +10,120 @@ import PageFrame from "./PageFrame";
 import { formatArchetype, formatDaysAgo, formatScore } from "../utils/formatters";
 
 const CHANNELS = ["LinkedIn", "Twitter", "Email"];
+const SOURCES = [
+  { value: "chatgpt", label: "ChatGPT" },
+  { value: "claude", label: "Claude" },
+  { value: "other", label: "Otro" },
+];
 
 function wordCount(text) {
   return (text || "").trim().split(/\s+/).filter(Boolean).length;
 }
 
-function DraftEditor({ section, value, onChange, disabled }) {
+// Extract variant label ("A", "B"…) from section title like "Variante 1 — A"
+function extractVariantLabel(title) {
+  const m = title.match(/—\s*([A-Z])$/);
+  return m ? m[1] : null;
+}
+
+function DraftEditor({ section, value, onChange, disabled, onApprove, approveState }) {
   const original = section.content;
   const edited = !disabled && value !== original;
   const wc = wordCount(value);
   const wcOver = !disabled && wc > 50;
+  const variantLabel = extractVariantLabel(section.title);
+  const isVariant = !!variantLabel;
+
+  const [showExternal, setShowExternal] = useState(false);
+  const [externalText, setExternalText] = useState("");
+  const [externalSource, setExternalSource] = useState("chatgpt");
+
+  function handleApprove() {
+    if (externalText.trim()) {
+      onApprove(externalText.trim(), externalSource, variantLabel);
+    } else {
+      onApprove(value, "operator_edit", variantLabel);
+    }
+  }
+
+  const isApproved = approveState === "approved";
+  const isApproving = approveState === "approving";
 
   return (
     <div className={`draft-editor${disabled ? " draft-editor--loading" : ""}`}>
       <div className="draft-editor__header">
         <span className="draft-editor__title">{section.title}</span>
         {edited && <Badge tone="amber">Editado</Badge>}
+        {isApproved && <Badge tone="green">Aprobado ✓</Badge>}
         {!disabled && (
           <span className={`draft-editor__wc ${wcOver ? "draft-editor__wc--over" : ""}`}>
             {wc} palabras{wcOver ? " ⚠ >50" : ""}
           </span>
         )}
       </div>
+
       <textarea
         className="draft-editor__textarea"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={Math.max(4, value.split("\n").length + 1)}
-        disabled={disabled}
+        disabled={disabled || isApproved}
         style={disabled ? { opacity: 0.45, fontStyle: "italic", cursor: "wait" } : {}}
       />
+
+      {isVariant && !isApproved && !disabled && (
+        <div className="draft-variant-actions">
+          <button
+            className="btn-ghost"
+            onClick={() => setShowExternal((v) => !v)}
+            style={{ fontSize: "0.75rem" }}
+          >
+            {showExternal ? "▲ Ocultar versión externa" : "▼ Pegar versión externa (ChatGPT / Claude)"}
+          </button>
+
+          {showExternal && (
+            <div className="draft-external">
+              <div className="draft-external__header">
+                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Fuente:</span>
+                {SOURCES.map((s) => (
+                  <label key={s.value} className={`reply-outcome ${externalSource === s.value ? "reply-outcome--active" : ""}`} style={{ fontSize: "0.72rem", padding: "0.15rem 0.5rem" }}>
+                    <input
+                      type="radio"
+                      name={`source-${section.title}`}
+                      value={s.value}
+                      checked={externalSource === s.value}
+                      onChange={() => setExternalSource(s.value)}
+                    />
+                    {s.label}
+                  </label>
+                ))}
+              </div>
+              <textarea
+                className="draft-editor__textarea"
+                placeholder="Pegar aquí la respuesta de ChatGPT o Claude…"
+                value={externalText}
+                onChange={(e) => setExternalText(e.target.value)}
+                rows={5}
+                style={{ marginTop: "0.4rem", borderColor: "var(--accent-indigo, #6366f1)", opacity: 0.9 }}
+              />
+              {externalText.trim() && (
+                <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>
+                  Esta versión se usará como approved_output al aprobar.
+                </span>
+              )}
+            </div>
+          )}
+
+          <button
+            className="btn-primary"
+            onClick={handleApprove}
+            disabled={isApproving}
+            style={{ marginTop: "0.6rem", fontSize: "0.8rem", padding: "0.35rem 0.9rem" }}
+          >
+            {isApproving ? "Aprobando…" : `Aprobar variante ${variantLabel} para fine-tuning`}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -71,26 +155,13 @@ function ReplyForm({ handle, onSaved }) {
       <div className="reply-form__outcomes">
         {["positive", "neutral", "negative"].map((o) => (
           <label key={o} className={`reply-outcome ${outcome === o ? "reply-outcome--active" : ""}`}>
-            <input
-              type="radio"
-              name="outcome"
-              value={o}
-              checked={outcome === o}
-              onChange={() => setOutcome(o)}
-            />
+            <input type="radio" name="outcome" value={o} checked={outcome === o} onChange={() => setOutcome(o)} />
             {o}
           </label>
         ))}
       </div>
-      <select
-        className="entities-select"
-        value={channel}
-        onChange={(e) => setChannel(e.target.value)}
-        style={{ marginTop: "0.5rem" }}
-      >
-        {CHANNELS.map((c) => (
-          <option key={c} value={c}>{c}</option>
-        ))}
+      <select className="entities-select" value={channel} onChange={(e) => setChannel(e.target.value)} style={{ marginTop: "0.5rem" }}>
+        {CHANNELS.map((c) => <option key={c} value={c}>{c}</option>)}
       </select>
       <textarea
         className="modal-textarea"
@@ -122,10 +193,11 @@ export default function DraftViewer() {
   const [regenerating, setRegenerating] = useState(false);
   const [regenerated, setRegenerated] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [approving, setApproving] = useState(false);
-  const [approveError, setApproveError] = useState(null);
-  const [approved, setApproved] = useState(false);
   const [showReply, setShowReply] = useState(false);
+
+  // Per-variant approve state: { "A": "idle"|"approving"|"approved"|"error" }
+  const [variantState, setVariantState] = useState({});
+  const [approveError, setApproveError] = useState(null);
 
   const draftPanelRef = useRef(null);
 
@@ -134,7 +206,7 @@ export default function DraftViewer() {
       const data = await fetchEntity(handle);
       setProfile(data);
     } catch {
-      // profile errors are non-blocking
+      // non-blocking
     } finally {
       setIsLoadingProfile(false);
     }
@@ -151,6 +223,7 @@ export default function DraftViewer() {
         initial[s.title] = s.content;
       }
       setEdits(initial);
+      setVariantState({});
     } catch (err) {
       setDraftError(err.message || "Error loading draft");
     } finally {
@@ -163,21 +236,20 @@ export default function DraftViewer() {
     loadDraft();
   }, [loadProfile, loadDraft]);
 
-  async function handleApprove() {
-    const sections = draft?.sections || [];
-    const finalText = sections
-      .map((s) => edits[s.title] ?? s.content)
-      .join("\n\n");
-
-    setApproving(true);
+  async function handleApproveVariant(approvedText, source, variantLabel) {
+    setVariantState((prev) => ({ ...prev, [variantLabel]: "approving" }));
     setApproveError(null);
     try {
-      await approveDraft(handle, { approved_output: finalText });
-      setApproved(true);
+      await approveDraft(handle, {
+        approved_output: approvedText,
+        variant_label: variantLabel,
+        source,
+      });
+      setVariantState((prev) => ({ ...prev, [variantLabel]: "approved" }));
+      setShowReply(true);
     } catch (err) {
-      setApproveError(err.message || "Error approving draft");
-    } finally {
-      setApproving(false);
+      setVariantState((prev) => ({ ...prev, [variantLabel]: "error" }));
+      setApproveError(err.message || "Error aprobando variante");
     }
   }
 
@@ -186,12 +258,10 @@ export default function DraftViewer() {
   const memory = profile?.memory;
   const hooks = memory?.specific_hooks || [];
 
-  const isEdited = draft?.sections?.some(
-    (s) => edits[s.title] !== undefined && edits[s.title] !== s.content
-  );
-
+  const variantSections = (draft?.sections || []).filter((s) => extractVariantLabel(s.title));
+  const approvedCount = Object.values(variantState).filter((v) => v === "approved").length;
   const outreachStatus = dev?.outreach_status;
-  const showReplyPanel = outreachStatus === "drafted" || outreachStatus === "sent" || approved;
+  const showReplyPanel = outreachStatus === "drafted" || outreachStatus === "sent" || showReply;
 
   return (
     <PageFrame
@@ -241,9 +311,7 @@ export default function DraftViewer() {
             <article className="panel">
               <p className="panel__eyebrow">Hooks de evidencia</p>
               <ul className="profile-hooks">
-                {hooks.map((h, i) => (
-                  <li key={i}>{h}</li>
-                ))}
+                {hooks.map((h, i) => <li key={i}>{h}</li>)}
               </ul>
             </article>
           )}
@@ -252,9 +320,7 @@ export default function DraftViewer() {
             <article className="panel">
               <p className="panel__eyebrow">Pain signals</p>
               <div className="profile-signals">
-                {signals.slice(0, 3).map((s, i) => (
-                  <PainSignal key={i} signal={s} />
-                ))}
+                {signals.slice(0, 3).map((s, i) => <PainSignal key={i} signal={s} />)}
               </div>
             </article>
           )}
@@ -286,7 +352,9 @@ export default function DraftViewer() {
                   <p className="panel__eyebrow">
                     Draft{draft?.generated ? " — generado ahora" : " — existente"}
                   </p>
-                  {isEdited && <Badge tone="amber">Modificado</Badge>}
+                  {approvedCount > 0 && (
+                    <Badge tone="green">{approvedCount} de {variantSections.length} aprobadas</Badge>
+                  )}
                 </div>
 
                 <div className="draft-sections">
@@ -299,93 +367,72 @@ export default function DraftViewer() {
                         !regenerating && setEdits((prev) => ({ ...prev, [section.title]: val }))
                       }
                       disabled={regenerating}
+                      onApprove={handleApproveVariant}
+                      approveState={variantState[extractVariantLabel(section.title)] || "idle"}
                     />
                   ))}
                 </div>
 
-                {approved ? (
-                  <div className="draft-approved">
-                    <Badge tone="green">Draft aprobado ✓</Badge>
-                    {!showReply && (
-                      <button
-                        className="btn-secondary"
-                        onClick={() => setShowReply(true)}
-                      >
-                        Registrar respuesta
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  <div className="draft-actions">
-                    <button
-                      className="btn-secondary"
-                      onClick={() => {
+                <div className="draft-actions">
+                  <button
+                    className="btn-secondary"
+                    onClick={() => {
+                      const initial = {};
+                      for (const s of draft.sections || []) initial[s.title] = s.content;
+                      setEdits(initial);
+                      setVariantState({});
+                    }}
+                  >
+                    Resetear
+                  </button>
+                  <button
+                    className="btn-secondary"
+                    disabled={regenerating}
+                    onClick={async () => {
+                      setRegenerating(true);
+                      setRegenerated(false);
+                      setEdits({});
+                      setVariantState({});
+                      setDraftError(null);
+                      try {
+                        const data = await regenerateDraft(handle);
+                        setDraft(data);
                         const initial = {};
-                        for (const s of draft.sections || []) {
-                          initial[s.title] = s.content;
-                        }
+                        for (const s of data.sections || []) initial[s.title] = s.content;
                         setEdits(initial);
-                      }}
-                    >
-                      Resetear
-                    </button>
-                    <button
-                      className="btn-secondary"
-                      disabled={regenerating}
-                      onClick={async () => {
-                        setRegenerating(true);
-                        setRegenerated(false);
-                        setEdits({});
-                        setDraftError(null);
-                        try {
-                          const data = await regenerateDraft(handle);
-                          setDraft(data);
-                          const initial = {};
-                          for (const s of data.sections || []) {
-                            initial[s.title] = s.content;
-                          }
-                          setEdits(initial);
-                          setRegenerated(true);
-                          setTimeout(() => setRegenerated(false), 3000);
-                        } catch (err) {
-                          setDraftError(err.message || "Error regenerando draft");
-                        } finally {
-                          setRegenerating(false);
-                        }
-                      }}
-                    >
-                      {regenerating ? "Generando…" : "Regenerar"}
-                    </button>
-                    {regenerated && <Badge tone="green">¡Regenerado! ✓</Badge>}
-                    <button
-                      className="btn-secondary"
-                      onClick={async () => {
-                        try {
-                          const data = await fetchDraftPrompt(handle);
-                          await navigator.clipboard.writeText(data.combined);
-                          setCopied(true);
-                          setTimeout(() => setCopied(false), 3000);
-                        } catch {
-                          // fallback silencioso
-                        }
-                      }}
-                    >
-                      {copied ? "¡Copiado! ✓" : "Copiar prompt"}
-                    </button>
-                    <button
-                      className="btn-primary"
-                      onClick={handleApprove}
-                      disabled={approving}
-                    >
-                      {approving ? "Aprobando…" : "Aprobar draft para fine-tuning"}
-                    </button>
-                  </div>
-                )}
+                        setRegenerated(true);
+                        setTimeout(() => setRegenerated(false), 3000);
+                      } catch (err) {
+                        setDraftError(err.message || "Error regenerando draft");
+                      } finally {
+                        setRegenerating(false);
+                      }
+                    }}
+                  >
+                    {regenerating ? "Generando…" : "Regenerar"}
+                  </button>
+                  {regenerated && <Badge tone="green">¡Regenerado! ✓</Badge>}
+                  <button
+                    className="btn-secondary"
+                    onClick={async () => {
+                      try {
+                        const data = await fetchDraftPrompt(handle);
+                        await navigator.clipboard.writeText(data.combined);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 3000);
+                      } catch {
+                        // fallback silencioso
+                      }
+                    }}
+                  >
+                    {copied ? "¡Copiado! ✓" : "Copiar prompt"}
+                  </button>
+                </div>
 
-                {approveError && <p className="topbar__error">{approveError}</p>}
+                {approveError && <p className="topbar__error" style={{ marginTop: "0.5rem" }}>{approveError}</p>}
               </article>
 
-              {(showReplyPanel || showReply) && (
+              {(showReplyPanel) && (
                 <article className="panel">
                   <ReplyForm
                     handle={handle}

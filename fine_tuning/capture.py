@@ -44,6 +44,8 @@ def capture_example(
     entity_id: str | None,
     provider: str | None,
     model_used: str | None,
+    variant_label: str | None = None,
+    source: str | None = "ollama",
 ) -> str:
     normalized_model_output = _normalize_text(model_output)
     normalized_approved_output = _normalize_text(approved_output)
@@ -65,9 +67,10 @@ def capture_example(
             INSERT INTO fine_tuning_examples (
                 id, task_type, system_prompt, user_input, model_output,
                 approved_output, was_edited, edit_distance, entity_id,
-                outcome, provider, model_used, approved_at, quality_score
+                outcome, provider, model_used, approved_at, quality_score,
+                variant_label, source
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 row_id,
@@ -84,6 +87,8 @@ def capture_example(
                 model_used,
                 approved_at,
                 quality_score,
+                variant_label,
+                source,
             ),
         )
 

@@ -81,6 +81,8 @@ def _parse_draft(path: Path) -> dict[str, Any]:
 class DraftApprovalRequest(BaseModel):
     approved_output: str = Field(min_length=1)
     example_id: str | None = None
+    variant_label: str | None = None  # "A", "B", etc.
+    source: str = Field(default="operator_edit", pattern="^(ollama|operator_edit|chatgpt|claude|other)$")
 
 
 class ReplyRequest(BaseModel):
@@ -220,6 +222,17 @@ def approve_draft(handle: str, payload: DraftApprovalRequest) -> dict[str, Any]:
                 """,
                 (payload.example_id, handle),
             )
+        elif payload.variant_label:
+            cur.execute(
+                """
+                SELECT id, model_output
+                FROM fine_tuning_examples
+                WHERE entity_id = %s AND task_type = 'draft' AND variant_label = %s
+                ORDER BY created_at DESC
+                LIMIT 1
+                """,
+                (handle, payload.variant_label),
+            )
         else:
             cur.execute(
                 """
@@ -246,7 +259,8 @@ def approve_draft(handle: str, payload: DraftApprovalRequest) -> dict[str, Any]:
                 edit_distance = %s,
                 quality_score = %s,
                 approved_at = NOW(),
-                outcome = 'approved'
+                outcome = 'approved',
+                source = %s
             WHERE id = %s
             """,
             (
@@ -254,12 +268,13 @@ def approve_draft(handle: str, payload: DraftApprovalRequest) -> dict[str, Any]:
                 model_output != approved_output,
                 _edit_distance(model_output, approved_output),
                 _quality_score(model_output, approved_output),
+                payload.source,
                 row["id"],
             ),
         )
 
     update_developer_profile_fields(handle, outreach_status="drafted", last_active=_now_iso())
-    return {"ok": True, "example_id": row["id"], "entity_id": handle}
+    return {"ok": True, "example_id": row["id"], "entity_id": handle, "variant_label": payload.variant_label}
 
 
 @router.post("/{handle}/reply")

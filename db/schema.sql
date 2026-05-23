@@ -169,7 +169,9 @@ CREATE TABLE IF NOT EXISTS fine_tuning_examples (
     model_used TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     approved_at TIMESTAMPTZ,
-    quality_score DOUBLE PRECISION
+    quality_score DOUBLE PRECISION,
+    variant_label TEXT,
+    source TEXT DEFAULT 'ollama'
 );
 
 CREATE INDEX IF NOT EXISTS idx_ft_task ON fine_tuning_examples(task_type, quality_score DESC);

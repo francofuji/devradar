@@ -284,6 +284,8 @@ def _generate_llm_variants(entity_id: str, memory: dict, outreach_context: dict)
                         entity_id=entity_id,
                         provider=_provider_from_model(llm_result.get("model")),
                         model_used=llm_result.get("model"),
+                        variant_label=item.get("label"),
+                        source="ollama",
                     )
                 except Exception:
                     pass
